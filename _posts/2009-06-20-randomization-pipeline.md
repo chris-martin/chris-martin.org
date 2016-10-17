@@ -337,11 +337,17 @@ set elements read from IO in a situation where space is a concern.
 
 So, like all clever tricks, you will likely never have good reason to use it.
 
+---
+
+*Followup: See [Randomization pipeline 2: Lazy scoring][followup] for an
+improved approach to this problem implemented in Haskell.*
+
 [bars]: https://github.com/chris-martin/bars
 [bash-random]: http://tldp.org/LDP/abs/html/randomvar.html
 [erdos]: http://en.wikipedia.org/wiki/Erd%C5%91s_number
 [koans]: http://www.catb.org/~esr/writings/unix-koans/
 [rms]: http://en.wikipedia.org/wiki/Richard_Stallman
+[followup]: http://chris-martin.org/2016/random-lazy-scoring
 
 <script src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
