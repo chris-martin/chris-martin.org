@@ -1,0 +1,62 @@
+body { margin: 0; padding: 0 0 5em; }
+
+a { color: #0a64bc; text-decoration: none; }
+
+a:hover { color: #4999e0; }
+
+h1 { margin-top: 1em; }
+
+h1, h2 { clear: both; }
+
+.container { padding: 0 2em; margin: 0 auto; max-width: 560px; }
+
+.global-page-header { min-height: 2em; border-bottom: 2px solid black; background-color: #333; line-height: 2em; }
+
+.global-page-header a { color: white; text-decoration: none; }
+
+blockquote { background: #f5f2e7; border: 1px solid #eadea3; margin: 1em 0; border-width: 0 0 0 10px; padding: 1.6em 2em; border-radius: 5px; }
+
+blockquote > *:first-child { margin-top: 0; }
+
+blockquote > *:last-child { margin-bottom: 0; }
+
+div.sourceCode { box-sizing: border-box; padding: 0 1.5em; }
+
+div.sourceCode pre { box-sizing: border-box; display: inline-block; min-width: 100%; border: 3px solid #f1f1f1; border-radius: 5px; padding: 1em; margin: 0; word-break: break-all; line-height: 1.2em; }
+
+div.sourceCode pre p { margin: 0; }
+
+div.sourceCode pre span.kw, div.sourceCode pre span.ot { color: #007020; }
+
+div.sourceCode pre span.fu { color: #06287e; }
+
+div.sourceCode pre span.co { color: #60a0b0; }
+
+div.sourceCode pre span.dt { color: #902000; }
+
+div.sourceCode pre span.ch, div.sourceCode pre span.st { color: #4070a0; }
+
+div.sourceCode pre span.bn, div.sourceCode pre span.dv, div.sourceCode pre span.fl { color: #40a070; }
+
+div.sourceCode pre span.al, div.sourceCode pre span.er { color: red; }
+
+div.sourceCode pre span.al, div.sourceCode pre span.er, div.sourceCode pre span.kw { font-weight: bold; }
+
+div.sourceCode pre span.co { font-style: italic; }
+
+@media (min-width: 560px) { div.sourceCode { text-align: center; }
+  div.sourceCode pre { min-width: 560px; text-align: left; } }
+
+.post-head { display: flex; flex-direction: row; flex-wrap: wrap; align-items: flex-end; margin-bottom: 2em; border-bottom: 1px solid darkgray; }
+
+.post-title { flex: 1; margin-bottom: 0; }
+
+.post-date { white-space: nowrap; color: darkgray; }
+
+.post-body { text-align: justify; }
+
+.course { list-style: none; margin-top: 0.5em; }
+
+.course .grade { display: inline-block; width: 2em; color: #467846; font-size: 75%; }
+
+.course .number { display: inline-block; width: 6em; color: #646464; font-size: 75%; }

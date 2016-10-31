@@ -1,0 +1,55 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><meta content="width=device-width,initial-scale=1" name="viewport"><title>Bunny vine</title><link rel="icon" href=""><link rel="stylesheet" type="text/css" href="../hash/212b680e8ccabb24e417292b8d8a61c7.css"></head><body><header class="global-page-header"><div class="container"><a href="..">Chris Martin</a></div></header><main><div><div class="post-head container"><h1 class="post-title">Bunny vine</h1><div class="post-date">2012 December</div></div><div class="post-body"><div class="container"><p>This project for CS 6491 (computer graphics) uses Scala with JOGL to
+generate a tree over approximately half of the faces of a triangle
+manifold using a laced ring construction, and then render an animation
+resembling a vine that grows upward along paths defined by the tree.</p><p>Links:
+<a href="https://github.com/chris-martin/vine">Source</a>,
+<a href="https://chris-martin.github.io/vine/animation.avi">animation</a>,
+<a href="https://chris-martin.github.io/vine/paper.pdf">paper</a>,
+<a href="https://chris-martin.github.io/vine/slides.pdf">slides</a>.</p><h2>Mesh structure</h2><p>The mesh is stored as a collection of components, where each component
+is a collection of triangles, and each triangle consists of three corners.
+The data comes from the Stanford Bunny read from a <code>ply</code> file.</p><p>Basic rendering with mesh edges drawn:</p><div style="max-width: 400px; margin: 0 auto;">
+    <img style="max-width: 100%" src="../hash/3cf6e2f050e42c3a161bff1eec3a812a.png"/>
+</div><p>Each new triangle <i>t</i> added to the mesh initially belongs to its own
+new component. If it is adjacent to another triangle <i>u</i>,
+then the components of <i>t</i> and <i>u</i> are merged into a single component.
+When two components merge, one of them may have its triangles reversed
+to ensure consistent corner ordering among all of the triangles within
+each component.</p><div style="max-width: 400px; margin: 0 auto;">
+    <img style="max-width: 100%" src="../hash/d2aa73bb6eb0d27747161cd7733e529f.png"/>
+</div><p>When triangle C is added to this mesh, its component is merged with A
+and then with B. A and B already have compatible ordering. B and C,
+however, do not, indicated by the observation that their shared edges
+point in the same direction. This is resolved by reversing the order
+of the corners in C.</p><h2>Triangle forest</h2><p>The first task is to construct an undirected acyclic graph of triangles
+(rendered as the darker color below). The graph is initialized with a triangle
+located near the bottom-center of the model space, and is subsequently
+expanded by conducting a traversal of the mesh, rejecting triangles
+that share any edges with a triangle already in the graph.
+A breadth-first strategy was chosen over depth-first to exhibit more vine-like behavior.</p><p>Demonstration of LR result:</p><div style="max-width: 400px; margin: 0 auto;">
+    <img style="max-width: 100%" src="../hash/9447db827d8afafa741f44a637fd2d0c.png"/>
+</div><p>The darker-colored surface indicates triangles that belong to the tree.
+The resulting psuedo-Hamiltonian cycle is drawn in black.</p><div style="max-width: 400px; margin: 0 auto;">
+    <img style="max-width: 100%" src="../hash/a1fe7fddc9709f19f0dc8e5505060916.png"/>
+</div><p>Segments of the vine are defined over
+triplets of consecutive triangles.
+For example, the sequence of triangles
+(ABC, BCD, CDE)
+corresponds to a vine segment from the midpoint
+of BC to the midpoint of CD.</p><p>The bunny is slightly sunken into the mud puddle
+so that its bottommost vertices are “underground”.
+The triangle tree is split into a triangle directed forest,
+where the underground nodes are used as the tree roots.
+This ensures that all the vine segments sprouting from the
+ground do so simultaneously at the beginning of the animation.</p><h2>Vine rendering</h2><p>The vine itself is rendered by using <code>gluCylinder</code> to construct each segment.
+The thickness of each segment is manipulated to create a vine that is thicker
+at its roots and grows over time. Thickness is calculated as
+(<i>c<sub>1</sub> + c<sub>2</sub></i> atan(<i>α + c<sub>3</sub></i>) <i>+
+c<sub>4</sub></i> atan(<i>-β + c<sub>5</sub></i>)) <i>t</i>,
+where the <i>c</i> are constants, <i>α</i> is the maximum distance from the node
+to any leaf in the tree, <i>β</i> is the distance from the node
+to the root of the tree, and <i>t</i> is the time.</p><p>Screenshots from the animation:</p><div style="max-width: 400px; margin: 0 auto;">
+    <img style="max-width: 100%" src="../hash/1a08d650906de48c412f404136fc5866.png"/>
+</div><div style="max-width: 400px; margin: 0 auto;">
+    <img style="max-width: 100%" src="../hash/e87ac86c27217264d2207d104fd5b5cd.png"/>
+</div></div></div></div></main></body></html>

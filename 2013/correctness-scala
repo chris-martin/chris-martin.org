@@ -1,0 +1,41 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><meta content="width=device-width,initial-scale=1" name="viewport"><title>Correctness.scala</title><link rel="icon" href=""><link rel="stylesheet" type="text/css" href="../hash/0d11664c0e8d6e67dc35089e6de3559b.css"></head><body><header class="global-page-header"><div class="container"><a href="..">Chris Martin</a></div></header><main><div><div class="post-head container"><h1 class="post-title">Correctness.scala</h1><div class="post-date">2013 October 22</div></div><div class="post-body"><div class="container"></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">trait</span> Correctness {
+  
+  <span class="co">// Let’s talk about programs.</span>
+  <span class="kw">type</span> P
+  
+  <span class="co">// A specification is a predicate on a program.</span>
+  <span class="kw">trait</span> S { <span class="kw">def</span> <span class="fu">apply</span> (p: P): Boolean }
+  
+  <span class="co">// We say &quot;p implements s&quot; when a program meets a specification.</span>
+  <span class="kw">def</span> `p implements s` (p: P, s: S) = <span class="fu">s</span> (p)
+  
+  <span class="co">// We shorten this to &quot;p is correct&quot; when a specification is contextually implied.</span>
+  <span class="kw">def</span> `p is correct` (p: P)(<span class="kw">implicit</span> s: S) = `p implements s` (p, s)
+  
+  <span class="co">// This abbreviation can lead us to forget about specification.</span>
+  <span class="co">// But without it, there can be no notion of correctness.</span>
+  <span class="kw">def</span> `p is intrinsically correct` (p: P): Boolean = ???
+  
+  <span class="co">// Acceptability is also a predicate on a program.</span>
+  <span class="kw">trait</span> A { <span class="kw">def</span> <span class="fu">apply</span> (p: P): Boolean }
+  
+  <span class="co">// This makes it easy to confuse acceptance criteria with specification,</span>
+  <span class="co">// but &quot;p is acceptable&quot; and &quot;p is correct&quot; are not the same.</span>
+  <span class="kw">def</span> `p satisfies a` (p: P, a: A) = <span class="fu">a</span> (p)
+  <span class="kw">def</span> `p is acceptable` (p: P)(<span class="kw">implicit</span> a: A) = `p satisfies a` (p, a)
+  
+  <span class="co">// The specification is correct iff all programs that implement it are acceptable.</span>
+  <span class="kw">def</span> `s correctly reflects a` (s: S, a: A): Boolean
+  <span class="kw">def</span> `s is correct` (s: S)(<span class="kw">implicit</span> a: A) = `s correctly reflects a` (s, a)
+  
+  <span class="co">// From this we can derive an alternative definition of program acceptability.</span>
+  <span class="kw">def</span> `p is acceptable` (p: P)(<span class="kw">implicit</span> s: S, a: A) =
+    `p is correct` (p) &amp;&amp; `s is correct` (s)
+  
+  <span class="co">// The purpose of a specification is to be used in this way.</span>
+  <span class="kw">def</span> `specification used as an acceptance test` (s: S)(<span class="kw">implicit</span> a: A): A = {
+    <span class="fu">assert</span> ( `s is correct` (s) )
+    <span class="kw">new</span> A { <span class="kw">def</span> <span class="fu">apply</span> (p: P) = <span class="fu">s</span> (p) }
+  }
+}</code></pre></div><div class="container"></div></div></div></main></body></html>

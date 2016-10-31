@@ -1,0 +1,230 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><meta content="width=device-width,initial-scale=1" name="viewport"><title>Randomization pipeline</title><link rel="icon" href=""><link rel="stylesheet" type="text/css" href="../hash/212b680e8ccabb24e417292b8d8a61c7.css"></head><body><header class="global-page-header"><div class="container"><a href="..">Chris Martin</a></div></header><main><div><div class="post-head container"><h1 class="post-title">Randomization pipeline</h1><div class="post-date">2009 June 20</div></div><div class="post-body"><div class="container"><p>One disappointing aspect of my CS experience is that I don’t get to write many
+interesting algorithms for real life. I think I came into this field expecting
+to see a lot of abstract computing problems requiring clever solutions.  What
+I’ve experienced, however, is that most computing exercises tends to lean
+heavily to one side of the theory-practice spectrum. A math-centric discussion
+of a clever algorithm may deal with proofs of correctness or asymptotic runtime,
+but will rarely consider its practical application.</p><p>In the software engineering world, we focus on higher-level architecture, and
+sometimes use the term <i>clever</i> pejoratively. The software goal is to abstract
+out the algorithms entirely so we can leave those pesky <i>implementation details</i>
+to libraries written by guys with smaller
+<a href="http://en.wikipedia.org/wiki/Erd%C5%91s_number">Erdős numbers</a> and larger
+<a href="http://en.wikipedia.org/wiki/Richard_Stallman">beards</a>.</p><p>There is certainly nothing wrong with this mentality. Writing javascript for the
+web without a framework may be more fun for a while, but it is ultimately
+foolish. You won’t be able to address nearly as many browser bugs within the
+scope of your project as the library maintainers have, and you don’t want to
+waste time replicating that effort anyway. Although it can be temptingly
+enjoyable to delve into the murky depths of writing low-level code and
+implementing your own generic data structures, I’ve had a hard time finding
+opportunities to get my hands dirty with anything outside of purely academic
+endeavours.</p><p>So I get excited when I encounter a real problem with a nontrivial solution
+involving math and progamming. I want to select a random file from some part of
+the filesystem, so I need a script (let’s call it <code>choose</code>) that can pick a
+random line from its input stream, so that I can get a random file with:</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="fu">find</span> -type f <span class="kw">|</span> <span class="ex">choose</span></code></pre></div><div class="container"><p>This problem poses no actual difficulty, of course - the obvious solution is to
+read all <i>n</i> lines, pick a random number <i>i</i> uniformly on <i>[1, n]</i>, and print
+the <i>i</i><sup>th</sup> line:</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="co">#!/bin/bash</span>
+
+<span class="va">all=()</span>
+<span class="va">i=</span>0
+
+<span class="kw">while</span> <span class="bu">read</span> <span class="va">x</span>; <span class="kw">do</span>
+  <span class="va">all[$i]=</span><span class="st">&quot;</span><span class="va">$x</span><span class="st">&quot;</span>
+  <span class="va">i=$((</span>i + 1<span class="va">))</span>
+<span class="kw">done</span>
+
+<span class="bu">echo</span> <span class="st">&quot;</span><span class="va">${all[$((</span>RANDOM % i<span class="va">))]}</span><span class="st">&quot;</span></code></pre></div><div class="container"><p>But this just doesn’t feel like it follows the
+<a href="http://www.catb.org/~esr/writings/unix-koans/">Way of Unix</a>, because it
+requires holding the entire list in memory just to eventually write a single
+line. We’re piping streams without using the pipelining to our advantage.  I’d
+like to be able to do this using constant space.</p><h2>The Shuffle</h2><p>My initial reaction is that it probably is not possible, but I think back to a
+neat little in-place array randomizer introduced in algorithms class. This is
+not all that related my current problem, but I’d mention it as sort of a source
+of inspiration. It’s a simple array shuffle:</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode">function shuffle(S)
+    for a in 1..|S|
+        b := randomly select integer from [i, n]
+        swap(S, a, b)</code></pre></div><div class="container"><p>It’s not a difficult exercise to show that this produces a uniformly random
+distribution of array permutations. Let <i>pr(x<sub>i</sub>, j)</i> be the
+probability that element starting at position <i>i</i> ends up at position <i>j</i>. For
+the distribution to be uniform, this probability must be <i>1 / n</i> for all <i>i</i> and
+<i>j</i>.</p><p>First, an element can only end up in position <i>1</i> if it is selected on the first
+iteration, with probability <i>1 / n</i>. Then with strong induction we can show:</p><p><code>\[
+\begin{align*}
+    \textrm{pr}(x,j)
+    &amp; = \left( 1 - \sum_{i=1}^{j-1}(\textrm{pr}(x,i)) \right)
+        \left( \frac{1}{n-j+1} \right) \\
+    &amp; = \left( 1 - \frac{j-1}{n} \right)
+        \left( \frac{1}{n-j+1} \right)
+      = \frac{1}{n}
+\end{align*}
+\]</code></p><p>The math wasn’t really necessary there, because this process is fairly
+intuitive. You can think of it as a random version of an in-place insertion
+sort, wherein the array is divided into <i>randomized</i> and <i>unrandomized</i> segments
+(instead of <i>sorted</i> and <i>unsorted</i>.)</p><p>This is also useful for generating a random subset of size <i>r</i>:</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode">function subset(S, r)
+    for a in 1..r
+        b := randomly select integer from [i, n]
+        swap(S, a, b)
+    return S[1..r]</code></pre></div><div class="container"><p>That was quite a digression. But the point was, you can generate uniform
+randomness in some odd, unobvious ways.</p><h2>One Random Element</h2><p>But to get back to the task at hand: picking a random element from an input
+stream in constant space. I can only think of one reasonable way to write this
+algorithm:</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode">function choose(input)
+    i = 1
+    chosen := nil
+    for x in input
+        if (true with probability f_i)
+            chosen := x
+        i := i + 1
+    return chosen</code></pre></div><div class="container"><p>It holds onto a single entry (<i>chosen</i>) at a time. Each time new entry <i>x</i> is
+read, it becomes the chosen entry with some probability dependent only on <i>i</i>
+(because the value of <i>i</i> is the only information available).</p><p>First, an expression for <i>p<sub>i</sub></i>, the probability that the algorithm
+chooses <i>x<sub>i</sub></i>. This event occurs when <i>x<sub>i</sub></i> is swapped in,
+and no subsequent elements are swapped in to replace it:</p><p><code>\[ p_i = f_i \prod_{k=i+1}^n (1 - f_k) \]</code></p><p><i>f</i> needs to be defined such that <i>p<sub>i</sub> = 1 / n</i> for all
+<i>1 ≤ i ≤ n</i>. An equivalent statement is that
+<i>p<sub>i</sub> = p<sub>i+1</sub></i> for all <i>1 ≤ i &lt; n</i>. This information is
+enough to construct a recurrence relation for <i>f</i>.</p><p><code>\[
+\begin{align*}
+    p_i               &amp; = p_{i+1}
+    \\
+    f_i \prod_{k=i+1}^n (1 - f_k)
+                      &amp; = f_{i+1} \prod_{k=i+2}^n (1 - f_k)
+    \\
+    f_i (1 - f_{i+1}) \prod_{k=i+2}^n (1 - f_k)
+                      &amp; = f_{i+1} \prod_{k=i+2}^n (1 - f_k)
+    \\
+    f_i (1 - f_{i+1}) &amp; = f_{i+1}
+    \\
+    f_{i+1}           &amp; = \frac{f_i}{f_i + 1}
+\end{align*}
+\]</code></p><p>The first entry needs to be recorded no matter what, so <i>f<sub>1</sub> = 1</i>.
+Solving the recurrence for <i>f</i> gives <i>f<sub>i</sub> = 1 / i</i>.</p><h2>Bash Implementation</h2></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="co">#!/bin/bash</span>
+<span class="va">RANDOM=$$</span>   <span class="co"># seed the rng with the pid</span>
+<span class="va">chosen=</span><span class="st">&#39;&#39;</span>   <span class="co"># will hold selected element</span>
+<span class="va">i=</span>1         <span class="co"># initialize loop counter</span>
+
+<span class="co"># read one line at a time</span>
+<span class="kw">while</span> <span class="bu">read</span> <span class="va">x</span>; <span class="kw">do</span>
+
+  <span class="co"># select x with probability 1/i</span>
+  <span class="kw">if</span><span class="bu"> [</span> <span class="st">&quot;</span><span class="va">$(($RANDOM</span> % <span class="va">$i))</span><span class="st">&quot;</span> <span class="ot">=</span> <span class="st">&quot;0&quot;</span><span class="bu"> ]</span>; <span class="kw">then</span>
+    <span class="va">chosen=</span><span class="st">&quot;</span><span class="va">$x</span><span class="st">&quot;</span>
+  <span class="kw">fi</span>
+
+  <span class="co"># increment loop counter</span>
+  <span class="va">i=$((</span>i + 1<span class="va">))</span>
+
+<span class="kw">done</span>
+
+<span class="bu">echo</span> <span class="va">$chosen</span></code></pre></div><div class="container"><p>Tested it with a cute little histogram script called
+<a href="https://github.com/chris-martin/bars">bars</a>:</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">(for</span> <span class="ex">i</span> in <span class="dt">{1..10000}</span><span class="kw">;</span> <span class="kw">do</span> <span class="kw">(</span><span class="bu">echo</span> <span class="kw">`</span><span class="fu">seq</span> 1 5 <span class="kw">|</span> <span class="ex">./choose</span><span class="kw">`)</span>; <span class="kw">done)</span> <span class="kw">|</span> <span class="ex">./bars</span> -r 0 -3 30</code></pre></div><div class="container"><br></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode">    1| 1047| ******************************
+    2| 1002| *****************************
+    3|  988| ****************************
+    4| 1035| ******************************
+    5|  977| ****************************
+    6|  982| ****************************
+    7|  988| ****************************
+    8|  976| ****************************
+    9|  996| *****************************
+   10| 1009| *****************************</code></pre></div><div class="container"><h2>More Random Elements</h2><p>So the next logical question is: Can this be generalized to choose some <i>r</i>
+elements instead of just one?</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode">function choose(input, r)
+    i = 1
+    chosen := collection of size r
+    for x in input
+        if (true with probability f_i))
+            chosen.add(x)
+        i := i + 1
+    return chosen</code></pre></div><div class="container"><p>The new algorithm is strikingly similar to the first, but <i>chosen</i> now needs to
+be some sort of data structure which holds up to <i>r</i> elements. For the same
+reason that <i>f<sub>1</sub> = 1</i> in the previous version, in this case
+<i>f<sub>1</sub> ... f<sub>r</sub></i> must all be <i>1</i> (the first <i>r</i> elements must
+all be saved).</p><p>Once full, however, this data stucture needs to make some decision about which
+element to evict when a new one is added. There are two reasonable choices - it
+could choose randomly, or behave as a FIFO queue. The latter solution seemed to
+be more elegant, but the math involved is not pretty (just trying to write an
+expression for <i>p<sub>i</sub></i> is a dreadful mess).</p><p>When the replacement occurs randomly, however, determining <i>p<sub>i</sub></i> is
+just as easy as it was last time. The only difference is that now the
+probability that an item with be evicted by a subsequent item <i>x<sub>k</sub></i>,
+which has changed from <i>f<sub>k</sub></i> to <i>f<sub>k</sub> / r</i>.</p><p><code>\[
+\begin{align*}
+    p_i &amp; = f_i \prod_{k=i+1}^n \left(1 - \frac{f_k}{r}\right) \\
+        &amp; = f_i \, (r^{i-n}) \prod_{k=i+1}^n (r - f_k)
+\end{align*}
+\]</code></p><p>A recurrence for <i>f<sub>i</sub></i> also follows in the same manner.</p><p><code>\[
+\begin{align*}
+    p_i               &amp; = p_{i+1} \\
+    f_i (r^{i-n}) \prod_{k=i+1}^n (r - f_k)
+                      &amp; = f_{i+1} (r^{(i+1)-n}) \prod_{k=i+2}^n (r - f_k) \\
+    f_i (r^{i-n}) (r - f_{i+1}) \prod_{k=i+2}^n (r - f_k)
+                      &amp; = f_{i+1} (r) (r^{i-n}) \prod_{k=i+2}^n (r - f_k) \\
+    f_i (r - f_{i+1}) &amp; = f_{i+1} (r) \\
+    f_{i+1}           &amp; = \frac{f_i r}{f_i + r}
+\end{align*}
+\]</code></p><p><i>f<sub>r</sub> = 1</i> as stated earlier. So for <i>i ≤ r</i>, this recurrence tells
+us that <i>f<sub>i</sub> = r / i</i>.</p><h2>More Bash</h2></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="co">#!/bin/bash</span>
+<span class="va">r=${1:-</span>1<span class="va">}</span>   <span class="co"># number of items (default 1)</span>
+<span class="va">RANDOM=$$</span>   <span class="co"># seed the rng with the pid</span>
+<span class="va">chosen=()</span>   <span class="co"># will contain selected elements</span>
+<span class="va">i=</span>1         <span class="co"># initialize loop counter</span>
+
+<span class="co"># read one line at a time</span>
+<span class="kw">while</span> <span class="bu">read</span> <span class="va">x</span>; <span class="kw">do</span>
+
+  <span class="co"># add 1..r sequentially</span>
+  <span class="kw">if</span><span class="bu"> [</span> <span class="va">$i</span> <span class="ot">-le</span> <span class="va">$r</span><span class="bu"> ]</span>; <span class="kw">then</span>
+    <span class="va">chosen[$((</span>i-1<span class="va">))]=</span><span class="st">&quot;</span><span class="va">$x</span><span class="st">&quot;</span>
+
+  <span class="co"># add the rest with probability r/i</span>
+  <span class="kw">elif</span><span class="bu"> [</span> <span class="st">&quot;</span><span class="va">$(($RANDOM</span> % <span class="va">$i))</span><span class="st">&quot;</span> <span class="ot">-lt</span> <span class="st">&quot;</span><span class="va">$r</span><span class="st">&quot;</span><span class="bu"> ]</span>; <span class="kw">then</span>
+    <span class="va">chosen[$(($RANDOM</span> % <span class="va">$r))]=</span><span class="st">&quot;</span><span class="va">$x</span><span class="st">&quot;</span>
+
+  <span class="kw">fi</span>
+
+  <span class="co"># increment loop counter</span>
+  <span class="va">i=$((</span>i + 1<span class="va">))</span>
+
+<span class="kw">done</span>
+
+<span class="kw">for</span> <span class="kw">((</span>i = 0; i &lt; <span class="va">${#chosen[@]}</span>; i++<span class="kw">))</span>; <span class="kw">do</span>
+  <span class="bu">echo</span> <span class="st">&quot;</span><span class="va">${chosen[i]}</span><span class="st">&quot;</span>
+<span class="kw">done</span></code></pre></div><div class="container"><p>This histogram is for the selection of 2 elements from 1 to 5:</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">(for</span> <span class="ex">i</span> in <span class="dt">{1..10000}</span><span class="kw">;</span> <span class="kw">do</span> <span class="kw">(</span><span class="bu">echo</span> <span class="kw">`</span><span class="fu">seq</span> 1 5 <span class="kw">|</span> <span class="ex">./choose</span> 2 <span class="kw">|</span> <span class="fu">sort</span> <span class="kw">|</span> <span class="fu">tr</span> <span class="st">&quot;\n&quot;</span> <span class="st">&quot; &quot;</span><span class="kw">`)</span>; <span class="kw">done)</span> <span class="kw">|</span> <span class="ex">./bars</span> -r 0</code></pre></div><div class="container"><br></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode">  1 2| 1016| ******************************
+  1 3| 1007| *****************************
+  1 4|  998| *****************************
+  1 5|  997| *****************************
+  2 3|  981| *****************************
+  2 4| 1015| ******************************
+  2 5|  987| *****************************
+  3 4|  994| *****************************
+  3 5|  975| ****************************
+  4 5| 1030| ******************************</code></pre></div><div class="container"><h2>A Few Notes</h2><p>Much of this math lacks rigor. Specifically, I sort of made up a definition of a
+uniformly random subset. This text only considers the criterion that each
+element be included with the correct probability, but it ignores any notion of
+independence. For instance, a poorly designed array shuffling algorithm that
+merely shifts indices (moves each <i>x<sub>i</sub></i> to position
+<i>(i + random) % n</i>) would satisfy the former but not the latter requirement.</p><p>This implementation is not good for large sets, because
+<a href="http://tldp.org/LDP/abs/html/randomvar.html">$RANDOM</a>
+is limited to 32767. It won’t fail, but as the set number approaches this
+magnitude, probabilities will be off.</p><p>My testing has not shown this algorithm to provide any speedup over the simple
+version. Picking a random number from <code><code>seq 10000</code></code> takes about twice
+as long.</p><p>I did not design this with much mind to efficiency. For example, if <i>r = 1</i>,
+there is no need to generate a random number to determine an element’s place in
+the <code>chosen</code> array.</p><p>The script generates a lot of random numbers - two for each element. If &quot;true&quot;
+randomness is important, this algorithm requires a great deal of entropy.</p><h2>Conclusion</h2><p>Hopefully something here was useful aside from learning some new Bash tricks.</p><p>I think this is a good strategy if you ever need to pick something random from a
+set elements read from IO in a situation where space is a concern.</p><p>So, like all clever tricks, you will likely never have good reason to use it.</p><script src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><script>
+  MathJax.Hub.Config({
+    tex2jax: {
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+    }
+  });
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script><style>
+  code.has-jax {
+    font: inherit;
+    font-size: 100%;
+    background: inherit;
+    border: inherit;
+  }
+</style></div></div></div></main></body></html>
