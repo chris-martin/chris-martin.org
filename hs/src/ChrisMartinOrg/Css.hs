@@ -1,12 +1,12 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module ChrisMartinOrg.Css
-  ( styleLink
+  {-( styleLink
   , compileCss
   , compileCssSource
   , compileCssFallback
-  ) where
-
+  )-} where
+{-
 import ChrisMartinOrg.Core
 import ChrisMartinOrg.Hash (writeHashBS)
 
@@ -56,3 +56,4 @@ styleLink href =
   link ! A.rel "stylesheet"
        ! A.type_ "text/css"
        ! A.href (fromString $ compiledCssPath href)
+-}

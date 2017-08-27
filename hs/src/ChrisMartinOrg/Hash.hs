@@ -1,9 +1,9 @@
 module ChrisMartinOrg.Hash
-  ( hash
+  {-( hash
   , writeHashBS
   , writeHashFile
-  ) where
-
+  )-} where
+{-
 import Data.ByteString (ByteString)
 import Data.Semigroup ((<>))
 import System.FilePath.Posix (takeExtension, (<.>), (</>), FilePath)
@@ -39,3 +39,4 @@ writeHashFile file =
         else pure Nothing
   where
     ext = takeExtension file
+-}

@@ -1,9 +1,9 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module ChrisMartinOrg.Content.Parse
-  ( parseContent
-  ) where
-
+  {-( parseContent
+  )-} where
+{-
 import ChrisMartinOrg.Core
 
 import Control.Applicative ((<|>), liftA2)
@@ -107,3 +107,4 @@ endOfBlock =
 
 (<+>) :: (Applicative f, Semigroup a) => f a -> f a -> f a
 (<+>) = liftA2 (<>)
+-}

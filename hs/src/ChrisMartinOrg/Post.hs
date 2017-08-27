@@ -1,11 +1,11 @@
 {-# LANGUAGE OverloadedStrings, RecordWildCards, ScopedTypeVariables #-}
 
 module ChrisMartinOrg.Post
-  ( getPosts
+  {-( getPosts
   , postUrl
   , writePost
-  ) where
-
+  )-} where
+{-
 import ChrisMartinOrg.Content (resolveContentAssets, contentToHtml)
 import ChrisMartinOrg.Core
 import ChrisMartinOrg.Css (compileCssFallback)
@@ -102,3 +102,4 @@ getPageInput Post{..} =
         ]
 
     return Page.Input{..}
+-}

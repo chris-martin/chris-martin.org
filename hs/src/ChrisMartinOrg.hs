@@ -1,9 +1,9 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module ChrisMartinOrg
-  ( main
-  ) where
-
+  {-( main
+  )-} where
+{-
 import ChrisMartinOrg.Hash (writeHashFile)
 import ChrisMartinOrg.Content (parseContent, resolveContentAssets)
 import ChrisMartinOrg.Core
@@ -158,3 +158,4 @@ resolveTwitterImageMaybe (Just t) =
     case e of
       Left err -> putStrLn err $> Nothing
       Right t' -> return (Just t')
+-}

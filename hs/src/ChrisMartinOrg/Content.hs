@@ -1,11 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module ChrisMartinOrg.Content
-  ( parseContent
+  {-( parseContent
   , resolveContentAssets
   , contentToHtml
-  ) where
-
+  )-} where
+{-
 import ChrisMartinOrg.Core
 
 import ChrisMartinOrg.Content.Parse (parseContent)
@@ -81,3 +81,4 @@ cpToHtml (C_Code lang body) =
   H.toHtml $
   Kate.formatHtmlBlock Kate.defaultFormatOpts $
   Kate.highlightAs (Text.unpack lang) (Text.unpack body)
+-}

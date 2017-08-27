@@ -4,6 +4,7 @@ Defines 'PostDate', the type we use to represent the date of a blog post, and
 thing for formatting and parsing these dates.
 
 -}
+
 module ChrisMartinOrg.PostDate
   ( PostDate (..)
   , formatPostDate

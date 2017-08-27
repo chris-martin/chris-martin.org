@@ -1,9 +1,9 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module ChrisMartinOrg.Redirect
-  ( redirectHtml
-  ) where
-
+  {-( redirectHtml
+  )-} where
+{-
 import Data.String (fromString)
 import Text.Blaze.Html5 (Html, toHtml, (!))
 
@@ -19,3 +19,4 @@ redirectHtml target =
       H.link ! A.rel "icon" ! A.href ""
     H.body $ do
       H.a ! A.href (fromString target) $ toHtml target
+-}

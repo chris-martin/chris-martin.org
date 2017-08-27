@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module ChrisMartinOrg.Core
-  (
+  {-(
   -- * Types
     Page(..)
   , Css(..)
@@ -16,8 +16,8 @@ module ChrisMartinOrg.Core
   , singlePartContent
   , collapseSeqAppend
 
-  ) where
-
+  )-} where
+{-
 import ChrisMartinOrg.PostDate
 
 import Data.Semigroup (Semigroup ((<>)))
@@ -113,3 +113,4 @@ collapseSeqAppend f x y = maybe (x <> y) id $ do
         if null xs then Nothing else Just (Seq.index xs i)
     seqFirst xs = seqIndexMaybe xs 0
     seqLast xs = seqIndexMaybe xs (length xs - 1)
+-}

@@ -2,9 +2,9 @@
              RecordWildCards #-}
 
 module ChrisMartinOrg.Post.Parse
-  ( parsePost
-  ) where
-
+  {-( parsePost
+  )-} where
+{-
 import ChrisMartinOrg.Core
 import ChrisMartinOrg.Content (parseContent)
 import ChrisMartinOrg.PostDate (postDateParser)
@@ -164,3 +164,4 @@ groupByStart isStart = foldr f [] where
 splitOn2T :: Text -> Text -> (Text, Text)
 splitOn2T pat src = case Text.breakOn pat src of
     (x, y) -> (x, Text.drop (Text.length pat) y)
+-}

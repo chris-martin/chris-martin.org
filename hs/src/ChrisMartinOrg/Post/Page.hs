@@ -1,10 +1,10 @@
 {-# LANGUAGE OverloadedStrings, RecordWildCards #-}
 
 module ChrisMartinOrg.Post.Page
-  ( Input(..)
+  {-( Input(..)
   , html
-  ) where
-
+  )-} where
+{-
 import ChrisMartinOrg.Core
 import ChrisMartinOrg.Css (styleLink)
 import ChrisMartinOrg.PostDate (PostDate, formatPostDate)
@@ -65,3 +65,4 @@ html Input{..} =
               toHtml $ formatPostDate inputPostDate
           H.div ! A.class_ "post-body" $ do
             inputBody
+-}

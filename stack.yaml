@@ -3,6 +3,9 @@ resolver: lts-9.1
 packages:
   - hs
 
+extra-deps:
+  - html-entities-1.1.4.1
+
 nix:
   packages:
     - zlib

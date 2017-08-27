@@ -1,9 +1,9 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module ChrisMartinOrg.Home
-  ( pageHtml
-  ) where
-
+  {-( pageHtml
+  )-} where
+{-
 import ChrisMartinOrg.Content (contentToHtml)
 import ChrisMartinOrg.Core
 import ChrisMartinOrg.Css (styleLink)
@@ -56,3 +56,4 @@ postHtml post = H.div ! A.class_ "post" $ do
       H.img ! A.class_ "post-thumb" ! A.src (fromString t)
     markdown $ postAbstract post
   H.br
+-}

@@ -15,6 +15,7 @@ library:
     - ChrisMartinOrg.Css
     - ChrisMartinOrg.Hash
     - ChrisMartinOrg.Home
+    - ChrisMartinOrg.MarkupLanguage
     - ChrisMartinOrg.Post
     - ChrisMartinOrg.PostDate
     - ChrisMartinOrg.Post.Page
@@ -24,8 +25,6 @@ library:
 dependencies:
   - base
   - attoparsec
-  - blaze-html
-  - blaze-markup
   - bytestring
   - containers
   - cryptonite
@@ -33,18 +32,20 @@ dependencies:
   - filepath
   - highlighting-kate
   - hsass
-  - markdown
+  - html-entities
+  - mono-traversable
   - safe
   - text
   - time
   - unix
+  - vector
 
-executables:
-  site:
-    source-dirs: app
-    main: Main.hs
-    dependencies:
-      - chris-martin-org
+#executables:
+#  site:
+#    source-dirs: app
+#    main: Main.hs
+#    dependencies:
+#      - chris-martin-org
 
 tests:
   test:
