@@ -1,19 +1,21 @@
-{ html, code }:
+\{ html, code } ->
 
 let
-  p = x: html.p {} (markdown x);
+  p = \x -> html.p {} (markdown x);
   h2 = html.h2 {};
   bash = code { language = "bash"; };
 
 in {
   title = "Submitting a pull request to GHC";
-  date  = "2017 Feb 18";
-  slug  = "phabricator-ghc-pull-request";
+  date = "2017 Feb 18";
+  slug = "phabricator-ghc-pull-request";
 
+  ──────────────────────────────────────────────────────────────────────────────
   abstract = ''
     Contributing to Haskell isn’t scary - How to submit a PR to GHC using
     Phabricator.
   '';
+  ──────────────────────────────────────────────────────────────────────────────
 
   body = [
 
@@ -29,17 +31,17 @@ in {
       writing this short guide because Phabricator is unfamiliar to most of us.
     '')
 
-    ##################################################################
-
+    ──────────────────────────────────────────────────────────────────────────────
     (h2 "Get the repo")
+    ──────────────────────────────────────────────────────────────────────────────
 
     (p "Clone the GHC repository and its submodules:")
 
     (bash "git clone --recursive git://git.haskell.org/ghc.git")
 
-    ##################################################################
-
+    ──────────────────────────────────────────────────────────────────────────────
     (h2 "Create an account")
+    ──────────────────────────────────────────────────────────────────────────────
 
     (p ''
       Before submitting pull requests, you’ll need to create an account at
@@ -47,9 +49,9 @@ in {
       your SSH public key.
     '')
 
-    ##################################################################
-
+    ──────────────────────────────────────────────────────────────────────────────
     (h2 "Submit a PR")
+    ──────────────────────────────────────────────────────────────────────────────
 
     (p ''
       Once you’ve committed your changes to some local branch, use Arcanist

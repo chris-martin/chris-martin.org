@@ -1,21 +1,23 @@
-{ html, scss, code }:
+\{ html, scss, code } ->
 
 let
-  p  = x: html.p {} (markdown x);
-  li = x: html.li {} (markdown x);
+  p = \x -> html.p {} (markdown x);
+  li = \x -> html.li {} (markdown x);
 
   bash = code { language = "bash"; };
 
 in {
   title = "NixOS on DigitalOcean";
-  date  = "2016 Oct 5";
-  slug  = "nixos-on-digitalocean";
+  date = "2016 Oct 5";
+  slug = "nixos-on-digitalocean";
 
-  css = scss ./nixos-digitalocean.scss;
+  css = scss "nixos-digitalocean.scss";
 
+  ──────────────────────────────────────────────────────────────────────────────
   abstract = ''
     How to start a new NixOS droplet on Digital Ocean using nixos-infect.
   '';
+  ──────────────────────────────────────────────────────────────────────────────
 
   body = [
     (p ''

@@ -1,4 +1,4 @@
-{ html, file-path, scss }:
+\{ html, file-path, scss } ->
 
 {
   title = "Georgia Tech course history";

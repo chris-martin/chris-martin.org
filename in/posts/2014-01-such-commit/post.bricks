@@ -1,4 +1,4 @@
-{ file-path, file-string, code }:
+\{ file-path, file-string, code } ->
 
 {
   title = "such commit—wow";

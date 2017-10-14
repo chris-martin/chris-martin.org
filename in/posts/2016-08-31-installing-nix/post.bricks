@@ -11,54 +11,70 @@ in {
   slug = "installing-nix-package-manager";
 
   ──────────────────────────────────────────────────────────────────────────────
-  abstract = ''A minimal guide to getting started with the Nix package manager
-    on any Linux or OSX machine.'';
+  abstract = ''
+    A minimal guide to getting started with the Nix package manager
+    on any Linux or OSX machine.
+  '';
   ──────────────────────────────────────────────────────────────────────────────
 
   body = [
 
-    (p ''A minimal guide to getting started with [the Nix package
-      manager](https://nixos.org/nix/) on any Linux or OSX machine.'')
+    (p ''
+      A minimal guide to getting started with [the Nix package
+      manager](https://nixos.org/nix/) on any Linux or OSX machine.
+    '')
 
-    (p ''There is a lot to explain about Nix that I am intentionally omitting
-      here. This is only what you need to know to get a working installation.'')
+    (p ''
+      There is a lot to explain about Nix that I am intentionally omitting
+      here. This is only what you need to know to get a working installation.
+    '')
 
     ────────────────────────────────────────────────────────────────────────────
-    (h2 ''1. Install Nix'')
+    (h2 "1. Install Nix")
     ────────────────────────────────────────────────────────────────────────────
 
-    (p ''This first step requires you to be a sudoer (it will prompt you for
+    (p ''
+      This first step requires you to be a sudoer (it will prompt you for
       your password), but *do not* type "sudo" yourself.
       It’s important for all of these steps to be performed as your own user,
-      not as root.'')
+      not as root.
+    '')
 
     (p "Run this command:")
 
     (bash "curl https://nixos.org/nix/install | sh")
 
-    (p ''This creates the `/nix` directory, which is owned by root.
+    (p ''
+      This creates the `/nix` directory, which is owned by root.
       Nix manages absolutely everything in this directory; you should never
-      touch it.'')
+      touch it.
+    '')
 
     ────────────────────────────────────────────────────────────────────────────
-    (h2 ''2. Choose a channel'')
+    (h2 "2. Choose a channel")
     ────────────────────────────────────────────────────────────────────────────
 
-    (p ''Channels are stable sets of packages.
+    (p ''
+      Channels are stable sets of packages.
       Go to [nixos.org/channels](https://nixos.org/channels/)
-      and find the highest-numbered channel.'')
+      and find the highest-numbered channel.
+    '')
 
-    (p ''Channels are released every six months. At the time of writing,
+    (p ''
+      Channels are released every six months. At the time of writing,
       "nixos-16.03" (from March 2016) is the latest channel, so that’s what
       we’ll use in the following steps; but you should replace `16.03` with
-      the version you’re using.'')
+      the version you’re using.
+    '')
 
     ────────────────────────────────────────────────────────────────────────────
-    (h2 ''3. Set up environment variables'')
+    (h2 "3. Set up environment variables")
     ────────────────────────────────────────────────────────────────────────────
 
-    (p ''Add the following lines to the end of `~/.bashrc` (or `~/.zshrc`, or
-      whatever the config file for the shell you use):'')
+    (p ''
+      Add the following lines to the end of `~/.bashrc` (or `~/.zshrc`, or
+      whatever the config file for the shell you use):
+    '')
 
     (bash
       |-
@@ -67,14 +83,18 @@ in {
       |-
     )
 
-    (p ''Remember to replace `16.03` with the actual channel you’re using.'')
+    (p ''
+      Remember to replace `16.03` with the actual channel you’re using.
+    '')
 
     ────────────────────────────────────────────────────────────────────────────
-    (h2 ''4. Add the channel:'')
+    (h2 "4. Add the channel:")
     ────────────────────────────────────────────────────────────────────────────
 
-    (p ''Run the following commands in a new shell, because you’ll need the
-      `.bashrc` changes made by step 3:'')
+    (p ''
+      Run the following commands in a new shell, because you’ll need the
+      `.bashrc` changes made by step 3:
+    '')
 
     (bash
       |-
@@ -83,19 +103,25 @@ in {
       |-
     )
 
-    (p ''Again, replace `16.03` with the channel you’re using.'')
+    (p ''
+      Again, replace `16.03` with the channel you’re using.
+    '')
 
     ────────────────────────────────────────────────────────────────────────────
     (h2 "5. Play")
     ────────────────────────────────────────────────────────────────────────────
 
-    (p ''Run this to show that it’s working!'')
+    (p ''
+      Run this to show that it’s working!
+    '')
 
     (bash "nix-shell -p rogue --command rogue")
 
-    (h2 ''Uninstall'')
+    (h2 "Uninstall")
 
-    (p ''If you want to remove everything related to Nix:'')
+    (p ''
+      If you want to remove everything related to Nix:
+    '')
 
     (bash
       |-
