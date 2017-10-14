@@ -7,9 +7,11 @@ in {
 
   thumbnail = file-path "thumbnail.png";
 
+  ──────────────────────────────────────────────────────────────────────────────
   abstract = markdown ''`find` is one of many simple yet powerful command-line
     tools, and I haven’t until recently had a chance to learn how to use it. Oh,
     the things you can do.'';
+  ──────────────────────────────────────────────────────────────────────────────
 
   body =
     let
@@ -22,13 +24,13 @@ in {
         a few days ago, plus a bit I added on just now:'')
 
       (code { language = "bash"; }
-        ┌
-        │find -name "*.java" \
-        │    | xargs wc -l   \
-        │    | sort -nr      \
-        │    | head -n 5     \
-        │    | sed -r -e 's/\.\/(.*\/)*//g'
-        └
+        |-
+        |find -name "*.java" \
+        |    | xargs wc -l   \
+        |    | sort -nr      \
+        |    | head -n 5     \
+        |    | sed -r -e 's/\.\/(.*\/)*//g'
+        |-
       )
 
       (p ''`find` recursively enumerates all of the files within the current

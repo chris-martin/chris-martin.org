@@ -2,23 +2,21 @@
 
 {
   title = "Georgia Tech course history";
-  date  = "2013 Dec";
-  slug  = "georgia-tech";
+  date = "2013 Dec";
+  slug = "georgia-tech";
 
-  css = scss ./georgia-tech.scss;
+  css = scss "georgia-tech.scss";
 
-  thumbnail = file-path ./coc.jpg;
+  thumbnail = file-path "coc.jpg";
 
-  abstract = ''
-    2005 — 2013
-  '';
+  abstract = ''2005 — 2013'';
 
   body = let
-    semester = name: courses: [
+    semester = \name -> \courses -> [
       (html.h2 {} name)
       (html.ul {} courses)
     ];
-    course = number: grade: name:
+    course = \number -> \grade -> \name ->
       html.li { class = "course"; } [
         (html.span { class = "number"; } number)
         (html.span { class = "grade"; } grade)

@@ -1,0 +1,18 @@
+{ code, file-string, scss }:
+
+{
+  title = "Correctness.scala";
+  date  = "2013 Oct 22";
+  slug  = "correctness-scala";
+
+  css = scss "correctness.scss";
+
+  abstract = (code { language = "scala"; }
+    ┌───
+    │// Let’s talk about programs.
+    │type P
+    └───
+  );
+
+  body = code { language = "scala"; } (file-string "correctness.scala");
+}

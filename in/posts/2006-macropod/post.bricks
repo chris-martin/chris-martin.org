@@ -7,8 +7,10 @@
 
   thumbnail = file-path "thumbnail.png";
 
+  ──────────────────────────────────────────────────────────────────────────────
   abstract = ''The agéd Prophet hunched begrudgingly over his walking pole,
     peering out at distant Tasman Sea. …'';
+  ──────────────────────────────────────────────────────────────────────────────
 
   body =
     let

@@ -5,8 +5,10 @@
   date = "2008 May 4";
   slug = "smalltalk-go-away";
 
+  ──────────────────────────────────────────────────────────────────────────────
   abstract = ''I like what I wrote for my 2340 survey comment. So I’m sharing
-  it.'';
+    it.'';
+  ──────────────────────────────────────────────────────────────────────────────
 
   body =
     let

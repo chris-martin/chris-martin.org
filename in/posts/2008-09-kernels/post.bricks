@@ -5,8 +5,10 @@
   date = "2008 Sept 19";
   slug = "kernels-vectors-graphs";
 
+  ──────────────────────────────────────────────────────────────────────────────
   abstract = ''It occurred to me that this OS Design course has put me past
     a certain point of no return in life.'';
+  ──────────────────────────────────────────────────────────────────────────────
 
   body =
     let

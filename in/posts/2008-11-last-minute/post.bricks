@@ -5,8 +5,10 @@
   date = "2008 Nov 3";
   slug = "last-minute-math";
 
-  abstract = ''As I was leaving for AVS this morning, I happened upon a take-home
-    test for Graph Theory which I should have done this weekend …'';
+  ──────────────────────────────────────────────────────────────────────────────
+  abstract = ''As I was leaving for AVS this morning, I happened upon a
+    take-home test for Graph Theory which I should have done this weekend …'';
+  ──────────────────────────────────────────────────────────────────────────────
 
   body =
     let

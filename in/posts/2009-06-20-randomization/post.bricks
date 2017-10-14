@@ -1,4 +1,4 @@
-\{ file-path, file-string, html, code, markdown, latex } ->
+\{ file-path, file-string, html, code, markdown, latex, dict } ->
 
 {
   title = "Randomization pipeline";
@@ -7,15 +7,20 @@
 
   thumbnail = file-path "thumbnail.png";
 
+  ──────────────────────────────────────────────────────────────────────────────
   abstract = "Random selection from a stream in constant space.";
+  ──────────────────────────────────────────────────────────────────────────────
 
   body =
     let
-      erdos = "http://en.wikipedia.org/wiki/Erd%C5%91s_number";
-      rms = "http://en.wikipedia.org/wiki/Richard_Stallman";
-      koans = "http://www.catb.org/~esr/writings/unix-koans/";
-      bars = "https://github.com/chris-martin/bars";
-      random = "http://tldp.org/LDP/abs/html/randomvar.html";
+      link =
+        dict.map (\href -> a { inherit href; }) {
+          erdos = "http://en.wikipedia.org/wiki/Erd%C5%91s_number";
+          rms = "http://en.wikipedia.org/wiki/Richard_Stallman";
+          koans = "http://www.catb.org/~esr/writings/unix-koans/";
+          bars = "https://github.com/chris-martin/bars";
+          random = "http://tldp.org/LDP/abs/html/randomvar.html";
+        }
 
       bash = code { language = "bash"; };
 
@@ -33,12 +38,12 @@
         algorithm may deal with proofs of correctness or asymptotic runtime,
         but will rarely consider its practical application.'')
 
-      (p ''In the software engineering world, we focus on higher-level
+      (p |<>|''In the software engineering world, we focus on higher-level
         architecture, and sometimes use the term *clever* pejoratively.
         The software goal is to abstract out the algorithms entirely so we
         can leave those pesky *implementation details* to libraries written
-        by people with smaller [Erdős numbers](${erdos}) and greater
-        [eccentricities](${rms}).'')
+        by people with smaller <link.erdos "Erdős numbers"> and greater
+        <link.rms "eccentricities">.'')
 
       (p ''There is certainly nothing wrong with this mentality. Writing javascript
         for the web without a framework may be more fun for a while, but it is
@@ -64,10 +69,11 @@
 
       (bash (file-string "naive.sh"))
 
-      (p ''But this just doesn’t feel like it follows the [Way of Unix](${koans}),
-        because it requires holding the entire list in memory just to eventually
-        write a single line. We’re piping streams without using the pipelining to
-        our advantage.  I’d like to be able to do this using constant space.'')
+      (p |<>|''But this just doesn’t feel like it follows the <link.koans
+        "Way of Unix">, because it requires holding the entire list in memory
+        just to eventually write a single line. We’re piping streams without
+        using the pipelining to our advantage.  I’d like to be able to do this
+        using constant space.'')
 
       ────────────────────────────────────────────────────────────────────────────
       (h2 "The Shuffle")
@@ -203,7 +209,8 @@
 
       (bash (file-string ./choose-one.sh))
 
-      (p "Tested it with a cute little histogram script called [bars](${bars}):")
+      (p |<>|''Tested it with a cute little histogram script called <link.bars
+        "bars">:'')
 
       (bash
         ┌───────────
@@ -318,9 +325,9 @@
         each *x<sub>i</sub>* to position *(i + random) % n*) would satisfy the
         former but not the latter requirement.'')
 
-      (p ''This implementation is not good for large sets, because
-        [$RANDOM](${random}) is limited to 32767. It won’t fail, but as the set
-        number approaches this magnitude, probabilities will be off.'')
+      (p |<>|''This implementation is not good for large sets, because
+        <link.random "$RANDOM"> is limited to 32767. It won’t fail, but as the
+        set number approaches this magnitude, probabilities will be off.'')
 
       (p ''My testing has not shown this algorithm to provide any speedup over the
         simple version. Picking a random number from `seq 10000` takes about twice

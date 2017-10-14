@@ -2,10 +2,10 @@
 
 {
   title = "such commit—wow";
-  date  = "2014 Jan 8";
-  slug  = "such-commit-wow";
+  date = "2014 Jan 8";
+  slug = "such-commit-wow";
 
-  thumbnail = file-path ./doge.png;
+  thumbnail = file-path "doge.png";
 
   abstract =
     (code { language = "bash"; }
@@ -16,5 +16,5 @@
       └
     );
 
-  body = html (file-string ./tweet.html);
+  body = html (file-string "tweet.html");
 }
