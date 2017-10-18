@@ -57,10 +57,10 @@
     '')
 
     (html
-      +-
+      +- {}
       |<div class="example">
       |  <div>
-      |    <img src="${file-path ./example.png}">
+      |    <img src="{file-path "example.png"}">
       |  </div>
       |</div>
       +-
@@ -147,7 +147,9 @@
     (h2 "`Span`")
     ────────────────────────────────────────────────────────────────────────────
 
-    (p "A `Span` is a start `Loc` and an end `Loc`.")
+    (p ''
+      A `Span` is a start `Loc` and an end `Loc`.
+    '')
 
     (haskell
       +-

@@ -8,7 +8,9 @@
   thumbnail = file-path "thumbnail.png";
 
   ──────────────────────────────────────────────────────────────────────────────
-  abstract = "Random selection from a stream in constant space.";
+  abstract = ''
+    Random selection from a stream in constant space.
+  '';
   ──────────────────────────────────────────────────────────────────────────────
 
   body =
@@ -83,7 +85,7 @@
         But this just doesn’t feel like it follows the <link.koans
         "Way of Unix">, because it requires holding the entire list in memory
         just to eventually write a single line. We’re piping streams without
-        using the pipelining to our advantage.  I’d like to be able to do this
+        using the pipelining to our advantage. I’d like to be able to do this
         using constant space.
       '')
 
