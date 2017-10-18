@@ -7,10 +7,12 @@
 
   thumbnail = file-path "thumb.png";
 
+  ──────────────────────────────────────────────────────────────────────────────
   abstract = ''
     An example using the `(.=)` operator from `microlens-mtl` to write
     Haskell code that resembles reassignment of mutable variables.
   '';
+  ──────────────────────────────────────────────────────────────────────────────
 
   twitter = {
     card = "summary_large_image";
