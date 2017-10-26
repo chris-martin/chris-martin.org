@@ -13,7 +13,7 @@ by Paul Lockhart.
 The big question everyone had in middle-to-high school mathematics classes was
 "When am I ever going to use this?" Those few who had interest in the subject
 tried to justify the existence of math class. But we were completely wrong.
-You asked the right quesion, and the answer was: Never. Your time is being
+You asked the right question, and the answer was: Never. Your time is being
 wasted, and you are being frustrated needlessly, because they are teaching all
 the wrong things.
 
