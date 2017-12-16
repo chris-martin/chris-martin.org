@@ -2,7 +2,7 @@
 title:    Line wrap
 date:     2017 Dec 15
 slug:     line-wrap
-abstract: ...
+abstract: How I prefer to design compositionally, and why I dislike TDD.
 --------------------------------------------------------------------------------
 
 Last night I let myself be driven to anger by some old [Uncle Bob][bob] writing, and I had to write a retort.
