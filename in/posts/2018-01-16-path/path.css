@@ -1,0 +1,16 @@
+@import '../post.scss';
+
+table.package-managers {
+  margin: 2em auto;
+  border-width: 8px 1px;
+  border-style: solid;
+  border-color: #aabbcc;
+  background-color: rgba(#aabbcc, 0.1);
+  border-radius: 3px;
+
+  td { padding: 0.2em 1em; }
+  td:first-child { padding-left: 2em; }
+  td:last-child { padding-right: 2em; }
+  tr:first-child td { padding-top: 0.8em; }
+  tr:last-child td { padding-bottom: 0.8em; }
+}
