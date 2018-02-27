@@ -1,7 +1,13 @@
-resolver: lts-9.1
+resolver: lts-10.7
 
 packages:
   - hs
+
+  # https://github.com/basvandijk/rss/pull/9
+  - location:
+      git: git@github.com:chris-martin/rss.git
+      commit: b357bd5950990a97ce2ca2c3aa4b85e918c4afc5
+    extra-dep: true
 
 nix:
   packages:

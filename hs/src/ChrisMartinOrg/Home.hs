@@ -32,6 +32,9 @@ pageHtml content css posts =
       H.link ! A.href "https://fonts.googleapis.com/css?\
                       \family=Inconsolata|Merriweather"
              ! A.rel "stylesheet"
+      H.link ! A.rel "alternate"
+             ! A.type_ "application/rss+xml"
+             ! A.href "/rss.xml"
       mapM_ styleLink css
 
     body = H.body $ do

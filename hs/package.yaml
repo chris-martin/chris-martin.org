@@ -20,6 +20,7 @@ library:
     - ChrisMartinOrg.Post.Page
     - ChrisMartinOrg.Post.Parse
     - ChrisMartinOrg.Redirect
+    - ChrisMartinOrg.RSS
 
 dependencies:
   - base
@@ -34,6 +35,8 @@ dependencies:
   - highlighting-kate
   - hsass
   - markdown
+  - network-uri
+  - rss
   - safe
   - text
   - time

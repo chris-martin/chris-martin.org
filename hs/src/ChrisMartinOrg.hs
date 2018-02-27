@@ -10,6 +10,7 @@ import ChrisMartinOrg.Core
 import ChrisMartinOrg.Css (compileCssSource)
 import ChrisMartinOrg.Post (getPosts, writePost, postUrl)
 import ChrisMartinOrg.Redirect (redirectHtml)
+import ChrisMartinOrg.RSS (rssString)
 
 import qualified ChrisMartinOrg.Home as Home
 
@@ -96,6 +97,8 @@ main = do
   forM_ posts $ \post ->
     forM_ (postRedirectFrom post) $ \redirectFrom ->
       writeRedirect redirectFrom (postUrl post)
+
+  writeFile "out/rss.xml" (rssString posts)
 
 getRedirectPath :: FilePath -> FilePath
 getRedirectPath [] = []

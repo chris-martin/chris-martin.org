@@ -8,19 +8,21 @@ module ChrisMartinOrg.PostDate
   ( PostDate (..)
   , formatPostDate
   , postDateParser
+  , postDateToUTCTime
   ) where
 
 import Control.Applicative (optional)
 import Control.Monad (mfilter)
 import Data.Attoparsec.Text (Parser, (<?>))
 import Data.Char (isLetter)
-import Data.Maybe (isJust)
+import Data.Maybe (fromMaybe, isJust)
 import Data.Text (Text)
 
 import qualified Data.Attoparsec.Text as A
 import qualified Data.Text as Text
 import qualified Data.Time.Calendar as Cal
 import qualified Data.Time.Format as TimeF
+import Data.Time (UTCTime (..))
 
 {- |
 
@@ -35,6 +37,13 @@ data PostDate =
     , postDateDay   :: Maybe Int
     }
   deriving (Eq, Ord, Show)
+
+postDateToUTCTime :: PostDate -> UTCTime
+postDateToUTCTime x = UTCTime (Cal.fromGregorian year month day) 0
+  where
+    year = (fromIntegral . postDateYear) x
+    month = postDateMonth x
+    day = (fromMaybe 1 . postDateDay) x
 
 {- |
 
