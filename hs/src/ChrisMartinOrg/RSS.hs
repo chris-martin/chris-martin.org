@@ -4,13 +4,14 @@ module ChrisMartinOrg.RSS
   ( rssString
   ) where
 
-import ChrisMartinOrg.Core (Post (..))
+import ChrisMartinOrg.Core (Post (..), markdown)
 import ChrisMartinOrg.Post (postUrl)
 import ChrisMartinOrg.PostDate (postDateToUTCTime)
 
 import Network.URI (URI (..), URIAuth (..))
 import Text.RSS
 import qualified Data.Text as Text
+import Text.Blaze.Html.Renderer.String (renderHtml)
 
 rssString :: [Post] -> String
 rssString posts = (showXML . rssToXML) rss
@@ -26,7 +27,7 @@ postItem :: Post -> Item
 postItem p =
   [ (Title . Text.unpack . postTitle) p
   , (Link . uri . postUrl) p
-  , (Description . Text.unpack . postAbstract) p
+  , (Description . renderHtml . markdown . postAbstract) p
   , (PubDate . postDateToUTCTime . postDate) p
   ]
 
