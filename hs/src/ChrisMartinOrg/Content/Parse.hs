@@ -87,10 +87,10 @@ codeOpen =
 --   of the code body.
 codeAtNewline :: Parser Text
 codeAtNewline =
-    end <|> (stuff <+> codeAtNewline)
+    end' <|> (stuff' <+> codeAtNewline)
   where
-    end = "" <$ "```" <* A.lookAhead endOfBlock
-    stuff = A.takeWhile (/= '\n') <+> "\n"
+    end' = "" <$ "```" <* A.lookAhead endOfBlock
+    stuff' = A.takeWhile (/= '\n') <+> "\n"
 
 
 --------------------------------------------------------------------------------

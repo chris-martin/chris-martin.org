@@ -4,6 +4,8 @@ module ChrisMartinOrg.Home
   ( pageHtml
   ) where
 
+import Prelude hiding (head)
+
 import ChrisMartinOrg.Content (contentToHtml)
 import ChrisMartinOrg.Core
 import ChrisMartinOrg.Css (styleLink)

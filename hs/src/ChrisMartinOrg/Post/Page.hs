@@ -5,6 +5,8 @@ module ChrisMartinOrg.Post.Page
   , html
   ) where
 
+import Prelude hiding (head)
+
 import ChrisMartinOrg.Core
 import ChrisMartinOrg.Css (styleLink)
 import ChrisMartinOrg.PostDate (PostDate, formatPostDate)
@@ -18,6 +20,7 @@ import Text.Blaze.Html5 (Html, toHtml, (!))
 import qualified Text.Blaze as Blaze
 import qualified Text.Blaze.Html5 as H
 import qualified Text.Blaze.Html5.Attributes as A
+import qualified Data.Text as Text
 
 data Input = Input
   { inputTitle    :: Html
@@ -65,3 +68,13 @@ html Input{..} =
               toHtml $ formatPostDate inputPostDate
           H.div ! A.class_ "post-body" $ do
             inputBody
+      H.div ! A.class_ "post-footer container" $
+        H.p $ do
+          H.toHtml (Text.pack "I write and make videos for ")
+          H.a ! A.href "http://typeclasses.com" $
+            H.toHtml (Text.pack "Type Classes")
+          H.toHtml (Text.pack " about Haskell and related topics. I am also working on a book, ")
+          H.a ! A.href "http://joyofhaskell.com" $
+            H.span ! A.style "text-decoration: italic;" $
+              H.toHtml (Text.pack "The Joy of Haskell")
+          H.toHtml (Text.pack ".")

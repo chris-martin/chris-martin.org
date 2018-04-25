@@ -5,6 +5,8 @@ module ChrisMartinOrg.Post.Parse
   ( parsePost
   ) where
 
+import Prelude hiding (lines)
+
 import ChrisMartinOrg.Core
 import ChrisMartinOrg.Content (parseContent)
 import ChrisMartinOrg.PostDate (postDateParser)

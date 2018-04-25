@@ -24,6 +24,13 @@
 }
 
 .post-title,
-.post-body {
+.post-body,
+.post-footer {
     font-family: Merriweather, serif;
+}
+
+.post-footer {
+    margin-top: 4em;
+    color: #666;
+    border-top: 1px solid #ccc;
 }

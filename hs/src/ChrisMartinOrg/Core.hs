@@ -52,7 +52,7 @@ newtype Content = Content { contentParts :: Seq ContentPart }
 instance Semigroup Content where
     Content x <> Content y = Content $ collapseSeqAppend f x y
       where
-        f (ContentText x) (ContentText y) = Just $ ContentText (x <> y)
+        f (ContentText x') (ContentText y') = Just $ ContentText (x' <> y')
         f _ _ = Nothing
 
 instance Monoid Content where mempty = Content mempty; mappend = (<>)

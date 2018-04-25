@@ -29,9 +29,9 @@ compileCssFallback [] = pure Nothing
 compileCssFallback (x:xs) =
   do
     e <- compileCss x
-    either fail (return . Just) e
+    either fail' (return . Just) e
   where
-    fail err = do
+    fail' err = do
       putStrLn err
       compileCssFallback xs
 

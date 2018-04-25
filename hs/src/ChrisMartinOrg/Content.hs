@@ -59,7 +59,7 @@ instance Monoid C
     mempty = C mempty
     mappend (C x) (C y) = C $ collapseSeqAppend f x y
       where
-        f (C_Text x) (C_Text y) = Just $ C_Text (x <> y)
+        f (C_Text x') (C_Text y') = Just $ C_Text (x' <> y')
         f _ _ = Nothing
 
 contentPartToC :: ContentPart -> C_Part
