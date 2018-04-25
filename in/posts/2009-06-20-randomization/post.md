@@ -351,7 +351,7 @@ I did not design this with much mind to efficiency. For example, if *r = 1*,
 there is no need to generate a random number to determine an element’s place in
 the `chosen` array.
 
-The script generates a lot of random numbers - two for each element. If "true"
+The script generates a lot of random numbers - two for each element. If “true”
 randomness is important, this algorithm requires a great deal of entropy.
 
 Conclusion

@@ -16,7 +16,7 @@ This is only what you need to know to get a working installation.
 ## 1. Install Nix
 
 This first step requires you to be a sudoer (it will prompt you for your
-password), but *do not* type "sudo" yourself.
+password), but *do not* type “sudo” yourself.
 It’s important for all of these steps to be performed as your own user,
 not as root.
 
@@ -35,7 +35,7 @@ Channels are stable sets of packages.
 Go to [nixos.org/channels](https://nixos.org/channels/)
 and find the highest-numbered channel.
 
-Channels are released every six months. At the time of writing, "nixos-16.03"
+Channels are released every six months. At the time of writing, “nixos-16.03”
 (from March 2016) is the latest channel, so that’s what we’ll use in the
 following steps; but you should replace `16.03` with the version you’re using.
 

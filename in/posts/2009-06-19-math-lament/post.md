@@ -3,15 +3,15 @@ title:    A Mathematician’s Lament
 date:     2009 June 19
 slug:     a-mathematicians-lament
 abstract: The big question everyone had in middle-to-high school mathematics
-          classes was "When am I ever going to use this?"
+          classes was “When am I ever going to use this?”
 --------------------------------------------------------------------------------
 
 Slashdot recently featured
-["A Mathematician’s Lament"](http://www.maa.org/external_archive/devlin/devlin_03_08.html)
+[“A Mathematician’s Lament”](http://www.maa.org/external_archive/devlin/devlin_03_08.html)
 by Paul Lockhart.
 
 The big question everyone had in middle-to-high school mathematics classes was
-"When am I ever going to use this?" Those few who had interest in the subject
+“When am I ever going to use this?” Those few who had interest in the subject
 tried to justify the existence of math class. But we were completely wrong.
 You asked the right question, and the answer was: Never. Your time is being
 wasted, and you are being frustrated needlessly, because they are teaching all
@@ -31,7 +31,7 @@ favorite excerpts.
 > appreciating).
 >
 > By concentrating on *what*, and leaving out *why*, mathematics is reduced to
-> an empty shell. The art is not in the "truth" but in the explanation, the
+> an empty shell. The art is not in the “truth” but in the explanation, the
 > argument. It is the argument itself which gives the truth its context, and
 > determines what is really being said and meant. Mathematics is *the art of
 > explanation*. If you deny students the opportunity to engage in this
@@ -44,8 +44,8 @@ favorite excerpts.
 
 
 
-> The saddest part of all this "reform" are the attempts to "make math
-> interesting" and "relevant to kids’ lives." You don’t need to *make* math
+> The saddest part of all this “reform” are the attempts to “make math
+> interesting” and “relevant to kids’ lives.” You don’t need to *make* math
 > interesting— it’s already more interesting than we can handle! And the glory
 > of it is its complete *irrelevance* to our lives. That’s why it’s so fun!
 
@@ -54,11 +54,11 @@ favorite excerpts.
 > In place of a natural problem context in which students can make decisions
 > about what they want their words to mean, and what notions they wish to
 > codify, they are instead subjected to an endless sequence of unmotivated and
-> a priori "definitions." The curriculum is obsessed with jargon and
+> a priori “definitions.” The curriculum is obsessed with jargon and
 > nomenclature, seemingly for no other purpose than to provide teachers with
 > something to test the students on. No mathematician in the world would bother
-> making these senseless distinctions: 2 1/2 is a "mixed number," while 5/2 is
-> an "improper fraction. " They’re *equal* for crying out loud. They are the
+> making these senseless distinctions: 2 1/2 is a “mixed number,” while 5/2 is
+> an “improper fraction.” They’re *equal* for crying out loud. They are the
 > same exact numbers, and have the same exact properties. Who uses such words
 > outside of fourth grade?
 
@@ -73,6 +73,6 @@ favorite excerpts.
 >
 > There is nothing charming about what passes for proof in geometry class.
 > Students are presented a rigid and dogmatic format in which their so-called
-> "proofs" are to be conducted— a format as unnecessary and inappropriate as
+> “proofs” are to be conducted— a format as unnecessary and inappropriate as
 > insisting that children who wish to plant a garden refer to their flowers by
 > genus and species.

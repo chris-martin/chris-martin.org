@@ -93,7 +93,7 @@ sudo mlabel -i <device> -s ::"NIXOS_ISO  "
 Note the spaces that pad the label name to
 [exactly 11 characters](http://askubuntu.com/a/103695/333663).
 
-Boot the NixOS live "CD". It contains the utilities that you’ll need to
+Boot the NixOS live “CD.” It contains the utilities that you’ll need to
 set up the disk, and of course the NixOS installer.
 
 Disk layout

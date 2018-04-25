@@ -50,9 +50,9 @@ dampened cloak as he drew his staff and dipped it steadily into the water. Air
 and sea swirled about the staff, and the enchanter nearly smiled. Grasping the
 implement firmly in both paws, he lifted it up and brought it down swiftly once
 more— to the sound of a small and disappointing splash, upon which he removed
-the staff from the water. "Mmh," the Prophet grunted.
+the staff from the water. “Mmh,” the Prophet grunted.
 
-"Crawfish."
+“Crawfish.”
 
 Biting into the small, impaled cray, he pulled it adeptly from the base of his
 staff. Some began to take notice as the Prophet chewed, then stabbed once more

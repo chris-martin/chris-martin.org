@@ -122,7 +122,7 @@ xOption.map(f).getOrElse(y)
 ## <a name="block-depth"></a> Block depth
 
 You then start to encounter the nauseating block nesting known in some
-circles as "callback hell":
+circles as “callback hell”:
 
 ```scala
 xs.foreach(x =>

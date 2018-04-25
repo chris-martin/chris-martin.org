@@ -162,10 +162,10 @@ href="https://twitter.com/chris__martin/statuses/495434954399285248">August 2,
 2014</a></blockquote>
 
 I wish we’d do this more often. I wish we’d look at these Java questions and
-say: "Look, first you need to *understand* the problem on a deeper level - So
+say: “Look, first you need to *understand* the problem on a deeper level - So
 let’s implement it with more tractable mathematics ... Now that you understand
 the basics, we can get into more difficult coding topics like control flow and
-Java."
+Java.”
 
 Teaching, trolling, or proselytizing?
 

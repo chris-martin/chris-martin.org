@@ -14,15 +14,15 @@ I would like to write an essay on why Cincom Visualworks should not be used
 for this course, but I’m sure everyone else is also saying this, so I’ll keep
 it brief.
 
-Smalltalk’s "everything is an object" idea sounds like it makes the perfect
+Smalltalk’s “everything is an object” idea sounds like it makes the perfect
 2340 language in theory, but it’s really not that much different from any
 other OO language. The only difference is that it has no literals - which only
-affects a handful of data types. So, the statement that Smalltalk is "more"
+affects a handful of data types. So, the statement that Smalltalk is “more”
 object-oriented than, say, Java, is not significantly true.
 
 I cannot imagine why a type-safe language was not chosen for this course. It
 was interesting every time a code example in the lecture had to be given in
-Java, because it would not make sense in Smalltalk. "Program to interfaces"
+Java, because it would not make sense in Smalltalk. “Program to interfaces”
 is great advice, but it’s not something we can see in our projects because the
 language doesn’t have interfaces!
 

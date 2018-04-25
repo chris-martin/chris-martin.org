@@ -9,8 +9,8 @@ abstract: Why are we at the mercy of languages’ core libraries?
 as an initial sanity check to make sure the candidate really knows the
 language:
 
-"Write a method that accepts a `List` and returns a copy of the list with
-duplicate elements removed."
+“Write a method that accepts a `List` and returns a copy of the list with
+duplicate elements removed.”
 
 It’s mostly just a test of whether they know how to use a hash set. Ignoring
 order, all we’re looking for is:
@@ -36,14 +36,14 @@ little task. Why doesn’t the Java coder?
 As a Java programmer, you have a several options that are all bad.
 
 * Inline the method, potentially cluttering up your business logic. If you do
-  it more than once, be prepared for the peer review comment "Refactor this and
-  create a static `distinct` method."
+  it more than once, be prepared for the peer review comment “Refactor this and
+  create a static `distinct` method.”
 
 * Implement `distinct` as a private method in whatever file you happen to be
   editing. But this won’t help you or anyone else next time.
 
-* Add the `distinct` method to your organization’s "util" (a.k.a. "pile of
-  miscellaneous shit") project. Without any coherency to its surroundings, the
+* Add the `distinct` method to your organization’s “util” (a.k.a. “pile of
+  miscellaneous shit”) project. Without any coherency to its surroundings, the
   code will proceed to suffer the worst manner of bit rot.
 
 * Publish `distinct` in a jar to Sonatype’s repository. Hopefully by the end of
@@ -52,8 +52,8 @@ As a Java programmer, you have a several options that are all bad.
 
 * Try to find some Apache or Guava library that already includes this. I don’t
   know of one, but I wouldn’t be surprised if there is one that I just couldn’t
-  find. Peer review will ask: "Did you have to add a dependency just to avoid
-  writing a one-line method?"
+  find. Peer review will ask: “Did you have to add a dependency just to avoid
+  writing a one-line method?”
 
 ---
 
@@ -95,8 +95,8 @@ hard to find code, and it’s too hard to add dependencies.
 
 The result is a situation wherein you have the very basics covered by the core
 library, some particular tasks covered by third-party libraries only if the
-problems they solve are hard enough both "to justify releasing a library" and
-"to justify adding a dependency", and a large void in between where developers
+problems they solve are hard enough both “to justify releasing a library” and
+“to justify adding a dependency,” and a large void in between where developers
 poorly re-implement the same libraries over and over.
 
 ---

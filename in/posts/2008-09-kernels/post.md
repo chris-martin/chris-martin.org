@@ -28,7 +28,7 @@ send them running away in a terrified confusion. So we hide the majority of
 mathematical concepts in the dark as if ashamed of them. Just as my first grade
 class denied the existence of numbers less than zero, high school refused to
 acknowledge the existence of a vector space of dimension greater than two (or
-perhaps three). We did algebra "exercises" in field of real numbers, but never
-once heard the word "field". Sometimes an equation’s solution is a set, but we
-didn’t even have a well-defined notion of "set". The mere mention of things you
+perhaps three). We did algebra “exercises” in field of real numbers, but never
+once heard the word “field.” Sometimes an equation’s solution is a set, but we
+didn’t even have a well-defined notion of “set.” The mere mention of things you
 don’t fully understand can be enough to begin to see the bigger picture.
