@@ -25,5 +25,5 @@ If you come from the world of strict evaluation, then linked lists in the presen
 
   [quote]: https://gist.github.com/vjeux/cc2c4f83a6b60d69b79057b6ef651b56
   [containers]: https://hackage.haskell.org/package/containers
-  [vector]: hackage.haskell.org/package/vector
+  [vector]: https://hackage.haskell.org/package/vector
   [tweet]: https://twitter.com/chris__martin/status/944641666404806657
