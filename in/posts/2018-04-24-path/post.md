@@ -1,6 +1,6 @@
 --------------------------------------------------------------------------------
 title:    What goes in $PATH?
-date:     2018 Jan 16
+date:     2018 Apr 24
 slug:     what-goes-in-path
 css:      path.css
 abstract: A quick overview of the purpose of the `PATH` variable.
@@ -33,13 +33,13 @@ Here are some of the package managers I use and the places where they install pr
   </tr>
 </table>
 
-For our purposes here, the words "program," "executable," and "binary" are used synonymously. As you can see, directories that are intended to be used with `PATH` tend to be named "bin," signifying that they are full of binaries.
+For our purposes here, the words “program,” “executable,” and “binary” are used synonymously. As you can see above, directories that are intended to be used with `PATH` tend to be named “bin,” signifying that they are full of binaries.
 
-`PATH` may be referred to as "the binary search path," "the search path," "the bin path," or simply "the path."
+`PATH` may be referred to as “the binary search path,” “the search path,” “the bin path,” or simply “the path.”
 
 ## An example
 
-Suppose you use Stack to install pandoc, but you get "command not found" when you try to run it.
+Suppose you use Stack to install pandoc, but you get “command not found” when you try to run it.
 
 ```bash
 $ stack install pandoc
@@ -99,4 +99,4 @@ Note that changes to `~/.bashrc` are *not* automatically applied to terminals th
 $ source ~/.bashrc
 ```
 
-to re-run the initialization script.
+in each terminal to re-run the initialization script.
