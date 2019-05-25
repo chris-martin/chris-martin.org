@@ -70,10 +70,10 @@ html Input{..} =
             inputBody
       H.div ! A.class_ "post-footer container" $
         H.p $ do
-          H.toHtml (Text.pack "I write and make videos for ")
+          H.toHtml (Text.pack "I write about Haskell and related topics; you can find my works online on ")
           H.a ! A.href "http://typeclasses.com" $
             H.toHtml (Text.pack "Type Classes")
-          H.toHtml (Text.pack " about Haskell and related topics. I am also working on a book, ")
+          H.toHtml (Text.pack " and in print from ")
           H.a ! A.href "http://joyofhaskell.com" $
             H.span ! A.style "text-decoration: italic;" $
               H.toHtml (Text.pack "The Joy of Haskell")
