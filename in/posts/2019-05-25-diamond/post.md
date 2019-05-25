@@ -9,9 +9,7 @@ I find that when I break up an application into packages by feature, the depende
 
 <div style="text-align: center;"><img src="${diamond.png}" style="max-width: 100%;"></div>
 
-Before I realized this, I struggled a lot. My naive impulse was to have four packages: "Feature 1", "Feature 2", "Feature 3", and a "Common" package for non-feature-specific stuff.
-
-This leads to one of three huge mistakes:
+Before I realized this, I struggled a lot. My naive impulse was to have four packages: "Feature 1", "Feature 2", "Feature 3", and a "Common" package for non-feature-specific stuff. This leads to one of three huge mistakes:
 
   1. Dependency cycles (each feature imports the common project, and the common project imports the features);
 
