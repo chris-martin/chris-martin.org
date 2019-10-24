@@ -14,7 +14,7 @@ Some reasons to rebase commits to clean up the log:
 
 If you're not in the kind of situation where the log itself is a product, then micromanaging the git log probably isn't worth the time cost and potential loss of information that can occur in a rebase. For our code that runs [Type Classes](https://typeclasses.com), there's just very little point in caring what the history looks like. There's nobody to look at it but Julie and me, and once a revision is deployed, the previous commits are pretty much irrelevant. It's good to have the history just-in-case, but since it's uncommon for us to look at the history, it's not worth expending any effort to make that easier.
 
-Software is a tremendously wide umbrella covering a huge ranges of activities, and that generalizations about it tend to be absurd. It's easy to get immersed in your own particular office or project and feel like your experience there is the universal experience of programming. And when we make that mistake and also have loud opinions, we alienate others for no good reason.
+Software is a tremendously wide umbrella covering a huge ranges of activities, and generalizations about it tend to be absurd. It's easy to get immersed in your own particular office or project and feel like your experience there is the universal experience of programming. And when we make that mistake and also have loud opinions, we alienate others for no good reason.
 
 Keep this in mind when you read opinions, even from people whose knowledge and experience you respect.
 
