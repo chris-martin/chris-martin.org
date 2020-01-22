@@ -2,7 +2,7 @@
 title:    The forever skillet
 date:     2020 Jan 21
 slug:     forever-skillet
-abstract: Simple and durable.
+abstract: or: *How I Learned To Stop Using Dish Soap and Love the Iron*
 --------------------------------------------------------------------------------
 
 I am no cooking expert, but Julie endorses the accuracy of this post.
