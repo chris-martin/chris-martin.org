@@ -11,7 +11,7 @@ import ChrisMartinOrg.Core
 import ChrisMartinOrg.Css (styleLink)
 import ChrisMartinOrg.PostDate (PostDate, formatPostDate)
 
-import Control.Monad (forM_)
+import Data.Foldable (for_)
 import Data.Semigroup ((<>))
 import Data.Text (Text)
 import System.FilePath.Posix ((</>))
@@ -50,10 +50,10 @@ html Input{..} =
       H.link ! A.href "https://fonts.googleapis.com/css?\
                       \family=Inconsolata|Merriweather"
              ! A.rel "stylesheet"
-      mapM_ (styleLink . CompiledCss . (".." </>) . compiledCssPath) inputCss
+      for_ inputCss (styleLink . CompiledCss . (".." </>) . compiledCssPath)
 
       -- Miscellaneous other meta tags
-      forM_ inputMeta $ \(name, content) ->
+      for_ inputMeta $ \(name, content) ->
           H.meta ! A.name (Blaze.toValue name)
                  ! A.content (Blaze.toValue content)
 

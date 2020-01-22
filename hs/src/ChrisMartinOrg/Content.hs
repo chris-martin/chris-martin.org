@@ -13,7 +13,6 @@ import ChrisMartinOrg.Hash (writeHashFile)
 
 import Control.Monad (when)
 import Data.Maybe (isNothing)
-import Data.Semigroup ((<>))
 import Data.Sequence (Seq)
 import Data.Text (Text)
 import Text.Blaze.Html5 (Html, (!))
@@ -57,7 +56,10 @@ newtype C =
 instance Monoid C
   where
     mempty = C mempty
-    mappend (C x) (C y) = C $ collapseSeqAppend f x y
+
+instance Semigroup C
+  where
+    (<>) (C x) (C y) = C $ collapseSeqAppend f x y
       where
         f (C_Text x') (C_Text y') = Just $ C_Text (x' <> y')
         f _ _ = Nothing

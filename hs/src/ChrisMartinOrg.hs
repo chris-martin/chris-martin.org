@@ -14,9 +14,8 @@ import ChrisMartinOrg.RSS (rssString)
 
 import qualified ChrisMartinOrg.Home as Home
 
-import Control.Monad (forM_)
+import Data.Foldable (for_)
 import Data.Functor (($>))
-import Data.Semigroup ((<>))
 import Data.Text (Text)
 import Safe (lastMay)
 import System.FilePath.Posix ((</>), FilePath, takeDirectory)
@@ -52,7 +51,7 @@ main :: IO ()
 main = do
 
   -- set up output directories
-  forM_ [ outDir, hashDir ] $ Dir.createDirectoryIfMissing True
+  for_ [ outDir, hashDir ] $ Dir.createDirectoryIfMissing True
 
   homeCss :: Either String CompiledCss <- compileCssSource homeCssPath
 
@@ -92,10 +91,10 @@ main = do
   let homeHtml = renderHtml $ Home.pageHtml homeText homeCssMaybe posts
   LBS.writeFile "out/index.html" homeHtml
 
-  forM_ posts $ writePost
+  for_ posts $ writePost
 
-  forM_ posts $ \post ->
-    forM_ (postRedirectFrom post) $ \redirectFrom ->
+  for_ posts $ \post ->
+    for_ (postRedirectFrom post) $ \redirectFrom ->
       writeRedirect redirectFrom (postUrl post)
 
   writeFile "out/rss.xml" (rssString posts)

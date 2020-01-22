@@ -1,10 +1,11 @@
-resolver: lts-11.17
+resolver: lts-14.20
 
 packages:
   - hs
 
 extra-deps:
   - rss-3000.2.0.7@sha256:078e331017ae6f891d161f62ae9b12d17bc11d8ce7d3efb224ccdf78d782c196,1716
+  - HaXml-1.25.5@sha256:4f8534cda290b3d0a76b4ca5c4b9aa20902dcf029ddd50998d07c5dd608ad6f6,4420
 
 nix:
   packages:

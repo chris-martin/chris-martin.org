@@ -12,8 +12,7 @@ import ChrisMartinOrg.Css (styleLink)
 import ChrisMartinOrg.Post (postUrl)
 import ChrisMartinOrg.PostDate (formatPostDate)
 
-import Control.Monad (forM_)
-import Data.Semigroup ((<>))
+import Data.Foldable (for_)
 import Data.String (fromString)
 import Text.Blaze.Html5 (Html, toHtml, (!))
 
@@ -37,7 +36,7 @@ pageHtml content css posts =
       H.link ! A.rel "alternate"
              ! A.type_ "application/rss+xml"
              ! A.href "/rss.xml"
-      mapM_ styleLink css
+      for_ css styleLink
 
     body = H.body $ do
       globalPageHeader HomePage
@@ -47,7 +46,7 @@ pageHtml content css posts =
             contentToHtml content
           H.div ! A.class_ "container" $ do
             H.h2 "Writings"
-            mapM_ postHtml posts
+            for_ posts postHtml
 
 postHtml :: Post -> Html
 postHtml post = H.div ! A.class_ "post" $ do
@@ -57,7 +56,7 @@ postHtml post = H.div ! A.class_ "post" $ do
     H.div ! A.class_ "post-date" $
       toHtml $ formatPostDate $ postDate post
   H.div ! A.class_ "post-abstract" $ do
-    forM_ (postThumb post) $ \t ->
+    for_ (postThumb post) $ \t ->
       H.img ! A.class_ "post-thumb" ! A.src (fromString t)
     markdown $ postAbstract post
   H.br
