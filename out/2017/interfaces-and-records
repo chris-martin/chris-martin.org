@@ -1,0 +1,103 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Java interfaces map to Haskell records</title><link rel="icon" href=""><link href="https://fonts.googleapis.com/css?family=Inconsolata|Merriweather" rel="stylesheet"><link rel="stylesheet" type="text/css" href="../hash/bbdb3309c85cc05af4572bd7e5eeb723.css"><meta name="twitter:site:id" content="18271443"><meta name="twitter:title" content="Java interfaces map to Haskell records"></head><body><header class="global-page-header"><div class="container"><a href="..">Chris Martin</a></div></header><main><div><div class="post-head container"><h1 class="post-title">Java interfaces map to Haskell records</h1><div class="post-date">2017 October 18</div></div><div class="post-body"><div class="container"><p>Gabriel Gonzalez recently wrote an article entitled <a href="http://www.haskellforall.com/2017/10/advice-for-haskell-beginners.html"><i>Advice for Haskell
+beginners</i></a> and I was mildly surprised to see that out of four tips,
+one was:</p><p style="text-align: center; margin: 2em auto; font-weight: bold;">
+Avoid typeclass abuse
+</p><p>On second thought, though, this <i>is</i> important advice. In retrospect, my
+inclination to use typeclasses in inappropriate ways was a big problem in my
+earlier Haskell days. I made this mistake a lot:</p><p style="text-align: center; margin: 2em auto;">
+I thought Java interfaces mapped to Haskell typeclasses.
+</p><p style="text-align: center; margin: 2em auto;">
+But really, more often they map to Haskell <emph>records</emph>.
+</p><p><a href="https://joyofhaskell.com/posts/2017-03-15-typeclasses-in-translation.html">Julie Moronuki and I have written fairly extensively</a> about the extent to
+which interfaces and typeclasses can be compared. (Summary of our conclusion:
+they share a related conceptual purpose but are not directly analogous.) Here I
+want to share a quick example of how they <i>do</i> map to records, by translating a
+Java example into Haskell.</p><p>To pick a simple and arbitrary example, I went to the Oracle&#39;s Java
+documentation page entitled <a href="https://docs.oracle.com/javase/tutorial/java/concepts/interface.html"><i>What Is an Interface?</i></a>. They give the
+following <code>Bicycle</code> interface:</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">interface</span> Bicycle {
+    <span class="dt">void</span> <span class="fu">changeCadence</span>(<span class="dt">int</span> newValue);
+    <span class="dt">void</span> <span class="fu">changeGear</span>(<span class="dt">int</span> newValue);
+    <span class="dt">void</span> <span class="fu">speedUp</span>(<span class="dt">int</span> increment);
+    <span class="dt">void</span> <span class="fu">applyBrakes</span>(<span class="dt">int</span> decrement);
+}</code></pre></div><div class="container"><p>And then a class called <code>AcmeBicycle</code>, which implements <code>Bicycle</code> and also has
+an additional method called <code>printStates</code>.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">class</span> AcmeBicycle <span class="kw">implements</span> Bicycle {
+
+    <span class="dt">int</span> cadence = <span class="dv">0</span>;
+    <span class="dt">int</span> speed = <span class="dv">0</span>;
+    <span class="dt">int</span> gear = <span class="dv">1</span>;
+
+    <span class="dt">void</span> <span class="fu">changeCadence</span>(<span class="dt">int</span> newValue) {
+         cadence = newValue;
+    }
+
+    <span class="dt">void</span> <span class="fu">changeGear</span>(<span class="dt">int</span> newValue) {
+         gear = newValue;
+    }
+
+    <span class="dt">void</span> <span class="fu">speedUp</span>(<span class="dt">int</span> increment) {
+         speed = speed + increment;
+    }
+
+    <span class="dt">void</span> <span class="fu">applyBrakes</span>(<span class="dt">int</span> decrement) {
+         speed = speed - decrement;
+    }
+
+    <span class="dt">void</span> <span class="fu">printStates</span>() {
+         <span class="bu">System</span>.<span class="fu">out</span>.<span class="fu">println</span>(<span class="st">&quot;cadence:&quot;</span> +
+             cadence + <span class="st">&quot; speed:&quot;</span> +
+             speed + <span class="st">&quot; gear:&quot;</span> + gear);
+    }
+}</code></pre></div><div class="container"><p>So now let&#39;s turn that into Haskell. I&#39;m going to translate as directly as
+possible. Using mutable references for the three fields of <code>AcmeBicycle</code> is
+unusual for Haskell, but for the sake of comparison we&#39;ll do it anyway using
+three <code>IORef</code>s.</p><p>The preliminaries: Let&#39;s enable <code>RecordWildCards</code> because we&#39;ll be using records
+a lot, and import the module containing <code>IORef</code>.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="ot">{-# LANGUAGE RecordWildCards #-}</span>
+
+<span class="kw">import </span><span class="dt">Data.IORef</span></code></pre></div><div class="container"><p>Now we&#39;ll jump straight to the punchline: Here&#39;s how the <code>Bicycle</code> Java
+interface is represented as a Haskell record. Each of the four methods in the
+interface corresponds to a field in the record.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">data</span> <span class="dt">Bicycle</span> <span class="fu">=</span>
+  <span class="dt">Bicycle</span>
+    {<span class="ot"> changeCadence ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
+    ,<span class="ot"> changeGear    ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
+    ,<span class="ot"> speedUp       ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
+    ,<span class="ot"> applyBrakes   ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
+    }</code></pre></div><div class="container"><p>The <code>AcmeBicycle</code> Java class <i>also</i> translates into a Haskell record. Each of
+the three fields in the Java interface corresponds to a field in the record.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">data</span> <span class="dt">AcmeBicycle</span> <span class="fu">=</span>
+  <span class="dt">AcmeBicycle</span>
+    {<span class="ot"> cadence ::</span> <span class="dt">IORef</span> <span class="dt">Int</span>
+    ,<span class="ot"> speed   ::</span> <span class="dt">IORef</span> <span class="dt">Int</span>
+    ,<span class="ot"> gear    ::</span> <span class="dt">IORef</span> <span class="dt">Int</span>
+    }</code></pre></div><div class="container"><p>The implicit constructor in the Java class becomes an explicit <code>IO</code> action in
+Haskell.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="ot">newAcmeBicycle ::</span> <span class="dt">IO</span> <span class="dt">AcmeBicycle</span>
+newAcmeBicycle <span class="fu">=</span>
+  <span class="kw">do</span>
+    cadence <span class="ot">&lt;-</span> newIORef <span class="dv">0</span>
+    speed   <span class="ot">&lt;-</span> newIORef <span class="dv">0</span>
+    gear    <span class="ot">&lt;-</span> newIORef <span class="dv">1</span>
+    return <span class="dt">AcmeBicycle</span>{<span class="fu">..</span>}</code></pre></div><div class="container"><p>The <code>printStates</code> Java class method becomes an ordinary top-level Haskell
+function.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="ot">printStates ::</span> <span class="dt">AcmeBicycle</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
+printStates <span class="dt">AcmeBicycle</span>{<span class="fu">..</span>} <span class="fu">=</span>
+  <span class="kw">do</span>
+    c <span class="ot">&lt;-</span> readIORef cadence
+    s <span class="ot">&lt;-</span> readIORef speed
+    g <span class="ot">&lt;-</span> readIORef gear
+    putStrLn (<span class="st">&quot;cadence:&quot;</span> <span class="fu">++</span> show c <span class="fu">++</span>
+              <span class="st">&quot; speed:&quot;</span> <span class="fu">++</span> show s <span class="fu">++</span>
+              <span class="st">&quot; gear:&quot;</span> <span class="fu">++</span> show g)</code></pre></div><div class="container"><p>In the Java example, <code>AcmeBicycle</code> is a <i>subtype</i> of <code>Bicycle</code>, which in Java
+parlance means that every <code>AcmeBicycle</code> value is <i>also</i> a <code>Bicycle</code> value. Thus
+if <code>x</code> is an <code>AcmeBicycle</code> and <code>f</code> is a function that accepts a <code>Bicycle</code>
+argument, we can write the Java expression <code>f(x)</code>.</p><p>We don&#39;t have that kind of polymorphism in our Haskell translation, but we
+really don&#39;t need it; we just need a function that converts <code>AcmeBicycle</code> to
+<code>Bicycle</code>.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="ot">acmeToBicycle ::</span> <span class="dt">AcmeBicycle</span> <span class="ot">-&gt;</span> <span class="dt">Bicycle</span>
+acmeToBicycle <span class="dt">AcmeBicycle</span>{<span class="fu">..</span>} <span class="fu">=</span>
+  <span class="dt">Bicycle</span>
+    { changeCadence <span class="fu">=</span> writeIORef cadence
+    , changeGear    <span class="fu">=</span> writeIORef gear
+    , speedUp       <span class="fu">=</span> \x <span class="ot">-&gt;</span> modifyIORef&#39; speed (\s <span class="ot">-&gt;</span> s <span class="fu">+</span> x)
+    , applyBrakes   <span class="fu">=</span> \x <span class="ot">-&gt;</span> modifyIORef&#39; speed (\s <span class="ot">-&gt;</span> s <span class="fu">-</span> x)
+    }</code></pre></div><div class="container"><p>Thus if <code>x</code> is an <code>AcmeBicycle</code> and <code>f</code> is a function that accepts a <code>Bicycle</code>
+argument, we can write the Haskell expression <code>f (acmeToBicycle x)</code>. There is
+one extra function call involved, but in exchange we eliminate the conceptual
+complexity of Java subtyping or Haskell overloading, and we can program entirely
+in simple monomorphic functions and data types.</p></div></div></div></main><div class="post-footer container"><p>I write about Haskell and related topics; you can find my works online on <a href="http://typeclasses.com">Type Classes</a> and in print from <a href="http://joyofhaskell.com"><span style="text-decoration: italic;">The Joy of Haskell</span></a>.</p></div></body></html>

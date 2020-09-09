@@ -1,0 +1,187 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Loc, Span, and Area</title><link rel="icon" href=""><link href="https://fonts.googleapis.com/css?family=Inconsolata|Merriweather" rel="stylesheet"><link rel="stylesheet" type="text/css" href="../hash/93d2d727008453c39d0e4f8a8c4fb2e7.css"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://chris-martin.org/hash/f571393652d9576a803425c546227901.png"><meta name="twitter:description" content="A Haskell library for calculations on text file positions."><meta name="twitter:site:id" content="18271443"><meta name="twitter:title" content="Loc, Span, and Area"></head><body><header class="global-page-header"><div class="container"><a href="..">Chris Martin</a></div></header><main><div><div class="post-head container"><h1 class="post-title">Loc, Span, and Area</h1><div class="post-date">2017 May 10</div></div><div class="post-body"><div class="container"><p>I started using <a href="https://hackage.haskell.org/package/haskell-src-exts">haskell-src-exts</a> recently to parse Haskell files to turn them
+into LaTeX for <a href="https://joyofhaskell.com/"><i>The Joy of Haskell</i></a>. I wasn’t used to this sort of
+parser that produces an AST that’s mapped back to the source file by line and
+column numbers, so it took me a while to wrap my head around what to do with its
+output.</p><p>After a while, I settled on some types, invented some terminology, and published
+a library: <a href="https://hackage.haskell.org/package/loc">loc</a>. Here’s an example to serve as an overview of the concepts:</p><div class="example"><div><img src="../hash/069a6c508cd9f15c278f28a30469cdc0.png"></div></div><ul><li><code>Loc</code> — a cursor position, starting at the origin <code>1:1</code></li><li><code>Span</code> — a nonempty contiguous region between two locs</li><li><code>Area</code> — a set of zero or more spans with gaps between them</li></ul><h2><code>Pos</code></h2><p>Since all of the numbers we’re dealing with in this domain are positive, I
+introduced a “positive integer” type. This is a newtype for <code>Natural</code> that
+doesn’t allow zero.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">newtype</span> <span class="dt">Pos</span> <span class="fu">=</span> <span class="dt">Pos</span> <span class="dt">Natural</span>
+  <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Ord</span>)
+
+<span class="kw">instance</span> <span class="dt">Num</span> <span class="dt">Pos</span> <span class="kw">where</span>
+  fromInteger <span class="fu">=</span> <span class="dt">Pos</span> <span class="fu">.</span> checkForUnderflow <span class="fu">.</span> fromInteger
+  <span class="dt">Pos</span> x <span class="fu">+</span> <span class="dt">Pos</span> y <span class="fu">=</span> <span class="dt">Pos</span> (x <span class="fu">+</span> y)
+  <span class="dt">Pos</span> x <span class="fu">-</span> <span class="dt">Pos</span> y <span class="fu">=</span> <span class="dt">Pos</span> (checkForUnderflow (x <span class="fu">-</span> y))
+  <span class="dt">Pos</span> x <span class="fu">*</span> <span class="dt">Pos</span> y <span class="fu">=</span> <span class="dt">Pos</span> (x <span class="fu">*</span> y)
+  abs <span class="fu">=</span> id
+  signum _ <span class="fu">=</span> <span class="dt">Pos</span> <span class="dv">1</span>
+  negate _ <span class="fu">=</span> throw <span class="dt">Underflow</span>
+
+<span class="ot">checkForUnderflow ::</span> <span class="dt">Natural</span> <span class="ot">-&gt;</span> <span class="dt">Natural</span>
+checkForUnderflow n <span class="fu">=</span>
+  <span class="kw">if</span> n <span class="fu">==</span> <span class="dv">0</span> <span class="kw">then</span> throw <span class="dt">Underflow</span> <span class="kw">else</span> n</code></pre></div><div class="container"><p>I’d love to have <code>toInteger :: Pos -&gt; Integer</code> from the <code>Integral</code> typeclass;
+unfortunately, <code>Integral</code> is seriously overburdened class, and that would
+require also implementing <code>quotRem</code>. I don’t terribly mind that <code>negate</code> throws
+<code>Underflow</code>, but <code>quotRem :: Pos -&gt; Pos -&gt; (Pos, Pos)</code> is a level of nonsense
+that crosses a line for me.</p><p>Instead I introduced my own <code>ToNat</code> class that I can use to convert positive
+numbers to natural numbers. (My opinion that great typeclasses only have one
+method continues to solidify.)</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">class</span> <span class="dt">ToNat</span> a <span class="kw">where</span>
+<span class="ot">  toNat ::</span> a <span class="ot">-&gt;</span> <span class="dt">Natural</span>
+
+<span class="kw">instance</span> <span class="dt">ToNat</span> <span class="dt">Pos</span> <span class="kw">where</span>
+  toNat (<span class="dt">Pos</span> n) <span class="fu">=</span> n</code></pre></div><div class="container"><h2><code>Line</code>, <code>Column</code></h2><p>We then add some newtypes to be more specific about whether we’re talking about
+line or column numbers.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">newtype</span> <span class="dt">Line</span> <span class="fu">=</span> <span class="dt">Line</span> <span class="dt">Pos</span>
+  <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Ord</span>, <span class="dt">Num</span>, <span class="dt">Real</span>, <span class="dt">Enum</span>, <span class="dt">ToNat</span>)
+
+<span class="kw">newtype</span> <span class="dt">Column</span> <span class="fu">=</span> <span class="dt">Column</span> <span class="dt">Pos</span>
+  <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Ord</span>, <span class="dt">Num</span>, <span class="dt">Real</span>, <span class="dt">Enum</span>, <span class="dt">ToNat</span>)</code></pre></div><div class="container"><h2><code>Loc</code></h2><p>A <code>Loc</code> is a <code>Line</code> and a <code>Column</code>.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">data</span> <span class="dt">Loc</span> <span class="fu">=</span> <span class="dt">Loc</span>
+  {<span class="ot"> line   ::</span> <span class="dt">Line</span>
+  ,<span class="ot"> column ::</span> <span class="dt">Column</span>
+  }
+  <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Ord</span>)</code></pre></div><div class="container"><h2><code>Span</code></h2><p>A <code>Span</code> is a start <code>Loc</code> and an end <code>Loc</code>.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">data</span> <span class="dt">Span</span> <span class="fu">=</span> <span class="dt">Span</span>
+  {<span class="ot"> start ::</span> <span class="dt">Loc</span>
+  ,<span class="ot"> end   ::</span> <span class="dt">Loc</span>
+  } <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Ord</span>)</code></pre></div><div class="container"><p>A <code>Span</code> is not allowed to be empty; in other words, <code>start</code> and <code>end</code> must be
+different. I don’t have an extremely compelling rationale for this, other than
+that empty spans didn’t make sense for my use case. Eliminating empty spans
+also, in my opinion, seems to eliminate some ambiguity when we describe an
+<code>Area</code> as a set of <code>Span</code>s.</p><p>There are two functions for constructing a <code>Span</code>. They both reorder their
+arguments as appropriate to make sure the start comes before the end (so that
+spans are never backwards). They take different approaches to ensuring that
+spans are never empty: the first can throw an exception, whereas the second is
+typed as <code>Maybe</code>.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="ot">fromTo ::</span> <span class="dt">Loc</span> <span class="ot">-&gt;</span> <span class="dt">Loc</span> <span class="ot">-&gt;</span> <span class="dt">Span</span>
+fromTo a b <span class="fu">=</span>
+  maybe (throw <span class="dt">EmptySpan</span>) id (fromToMay a b)
+
+<span class="ot">fromToMay ::</span> <span class="dt">Loc</span> <span class="ot">-&gt;</span> <span class="dt">Loc</span> <span class="ot">-&gt;</span> <span class="dt">Maybe</span> <span class="dt">Span</span>
+fromToMay a b <span class="fu">=</span>
+  <span class="kw">case</span> compare a b <span class="kw">of</span>
+    <span class="dt">LT</span> <span class="ot">-&gt;</span> <span class="dt">Just</span> (<span class="dt">Span</span> a b)
+    <span class="dt">GT</span> <span class="ot">-&gt;</span> <span class="dt">Just</span> (<span class="dt">Span</span> b a)
+    <span class="dt">EQ</span> <span class="ot">-&gt;</span> <span class="dt">Nothing</span></code></pre></div><div class="container"><p>As you can see here, I am not strictly opposed to writing partial functions in
+Haskell. I have two conditions for this, though:</p><ol><li>If a function can throw an exception, that fact must be clearly documented.</li><li>A function that can throw an exception should be paired with a corresponding
+total function that does the same thing <i>without</i> the possibility of an
+exception.</li></ol><p>In other words, providing a partial function that might be more convenient in
+some cases is fine, but don’t <i>force</i> a user of your API to use a partial
+function.</p><h2><code>Area</code></h2><p>An <code>Area</code> is conceptually a set of <code>Span</code>s, so in my first attempt that’s
+exactly how I defined it.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">newtype</span> <span class="dt">Area</span> <span class="fu">=</span> <span class="dt">Area</span> (<span class="dt">Set</span> <span class="dt">Span</span>)</code></pre></div><div class="container"><p>Unfortunately I couldn’t manage to write reasonably efficient union and
+difference operations with this representation. Here’s what I ended up with
+instead:</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">data</span> <span class="dt">Terminus</span> <span class="fu">=</span> <span class="dt">Start</span> <span class="fu">|</span> <span class="dt">End</span>
+  <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Ord</span>)
+
+<span class="kw">newtype</span> <span class="dt">Area</span> <span class="fu">=</span> <span class="dt">Area</span> (<span class="dt">Map</span> <span class="dt">Loc</span> <span class="dt">Terminus</span>)
+  <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Ord</span>)</code></pre></div><div class="container"><p>Rather than keeping a set of the spans, we keep a set of the spans’ start and
+end positions, along with a tag indicating whether each is a start or an end.
+You should notice the drawback to this representation: it is now much less
+“correct by construction”. The map must contain an even number of <code>Loc</code>s,
+alternating between <code>Start</code> and <code>End</code>. Any operations we write using the <code>Area</code>
+constructor must take care to preserve that property.</p><p>I’ll only cover one of the algorithms in this blog post: Adding a <code>Span</code> to an
+<code>Area</code>. We’re going to define a function with this type:</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="ot">addSpan ::</span> <span class="dt">Span</span> <span class="ot">-&gt;</span> <span class="dt">Area</span> <span class="ot">-&gt;</span> <span class="dt">Area</span></code></pre></div><div class="container"><p><code>Data.Map</code> in the <code>containers</code> package provides an <i>O(log n)</i> operation to
+divide a map into keys that are less than and greater than some key:</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="ot">split ::</span> <span class="dt">Ord</span> k <span class="ot">=&gt;</span> k <span class="ot">-&gt;</span> <span class="dt">Map</span> k a <span class="ot">-&gt;</span> (<span class="dt">Map</span> k a, <span class="dt">Map</span> k a)</code></pre></div><div class="container"><p>We’re going to use the <code>split</code> function twice: to split the area into <code>Loc</code>s
+that come <i>before the start</i> of the span we’re adding, and <code>Loc</code>s that come
+<i>after the end</i> of the span we’re adding. Then we’ll combine the stuff in the
+middle with the new span, and finally <code>mappend</code> all the maps back together.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="ot">addSpan ::</span> <span class="dt">Span</span> <span class="ot">-&gt;</span> <span class="dt">Area</span> <span class="ot">-&gt;</span> <span class="dt">Area</span>
+addSpan b (<span class="dt">Area</span> as) <span class="fu">=</span>
+
+  <span class="kw">let</span>
+    <span class="co">-- Spans lower than b that do not abut or</span>
+    <span class="co">-- overlap b. These spans will remain</span>
+    <span class="co">-- completely intact in the result.</span>
+<span class="ot">    unmodifiedSpansBelow ::</span> <span class="dt">Map</span> <span class="dt">Loc</span> <span class="dt">Terminus</span>
+
+    <span class="co">-- Spans greater than b that do not abut</span>
+    <span class="co">-- or overlap b. These spans will remain</span>
+    <span class="co">-- completely intact in the result.</span>
+<span class="ot">    unmodifiedSpansAbove ::</span> <span class="dt">Map</span> <span class="dt">Loc</span> <span class="dt">Terminus</span>
+
+    <span class="co">-- The start location of a span that starts</span>
+    <span class="co">-- below b but doesn&#39;t end below b, if such</span>
+    <span class="co">-- a span exists. This span will be merged</span>
+    <span class="co">-- into the &#39;middle&#39;.</span>
+<span class="ot">    startBelow ::</span> <span class="dt">Maybe</span> <span class="dt">Loc</span>
+
+    <span class="co">-- The end location of a span that ends</span>
+    <span class="co">-- above b but doesn&#39;t start above b, if</span>
+    <span class="co">-- such a span exists. This span will be</span>
+    <span class="co">-- merged into the &#39;middle&#39;.</span>
+<span class="ot">    endAbove ::</span> <span class="dt">Maybe</span> <span class="dt">Loc</span>
+
+    <span class="co">-- b, plus any spans it abuts or overlaps.</span>
+<span class="ot">    middle ::</span> <span class="dt">Map</span> <span class="dt">Loc</span> <span class="dt">Terminus</span>
+
+    (unmodifiedSpansBelow, startBelow) <span class="fu">=</span>
+      <span class="kw">let</span>
+        (below, _) <span class="fu">=</span> Map.split (Span.start b) as
+      <span class="kw">in</span>
+        <span class="kw">case</span> Map.maxViewWithKey below <span class="kw">of</span>
+          <span class="dt">Just</span> ((l, <span class="dt">Start</span>), xs) <span class="ot">-&gt;</span> (xs, <span class="dt">Just</span> l)
+          _ <span class="ot">-&gt;</span> (below, <span class="dt">Nothing</span>)
+
+
+    (unmodifiedSpansAbove, endAbove) <span class="fu">=</span>
+      <span class="kw">let</span>
+        (_, above) <span class="fu">=</span> Map.split (Span.end b) as
+      <span class="kw">in</span>
+        <span class="kw">case</span> Map.minViewWithKey above <span class="kw">of</span>
+          <span class="dt">Just</span> ((l, <span class="dt">End</span>), xs) <span class="ot">-&gt;</span> (xs, <span class="dt">Just</span> l)
+          _ <span class="ot">-&gt;</span> (above, <span class="dt">Nothing</span>)
+
+    middle <span class="fu">=</span> Map.fromList
+        [ (minimum <span class="fu">$</span> <span class="dt">Foldable</span><span class="fu">.</span>toList startBelow
+                  <span class="fu">&lt;&gt;</span> [Span.start b], <span class="dt">Start</span>)
+        , (maximum <span class="fu">$</span> <span class="dt">Foldable</span><span class="fu">.</span>toList endAbove
+                  <span class="fu">&lt;&gt;</span> [Span.end b], <span class="dt">End</span>)
+        ]
+
+  <span class="kw">in</span>
+    <span class="dt">Area</span> <span class="fu">$</span> unmodifiedSpansBelow
+        <span class="fu">&lt;&gt;</span> middle
+        <span class="fu">&lt;&gt;</span> unmodifiedSpansAbove</code></pre></div><div class="container"><h2><code>Show</code></h2><p>I defined custom <code>Show</code> and <code>Read</code> instances to be able to write terse
+<a href="https://hackage.haskell.org/package/doctest">doctests</a> like</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="fu">&gt;&gt;&gt;</span> addSpan (read <span class="st">&quot;1:1-6:1&quot;</span>) (read <span class="st">&quot;[1:1-3:1,6:1-6:2,7:4-7:5]&quot;</span>)
+[<span class="dv">1</span><span class="fu">:</span><span class="dv">1</span><span class="fu">-</span><span class="dv">6</span><span class="fu">:</span><span class="dv">2</span>,<span class="dv">7</span><span class="fu">:</span><span class="dv">4</span><span class="fu">-</span><span class="dv">7</span><span class="fu">:</span><span class="dv">5</span>]</code></pre></div><div class="container"><p>I usually just implement <code>show</code> when I write a custom <code>Show</code> instance, but this
+time I thought I’d do it the right way and implement <code>showsPrec</code> instead. This
+<a href="https://en.wikipedia.org/wiki/Difference_list">difference list</a> construction avoids expensive <i>O(n)</i> list concatenations.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="ot">locShowsPrec ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Loc</span> <span class="ot">-&gt;</span> <span class="dt">ShowS</span>
+locShowsPrec _ (<span class="dt">Loc</span> l c) <span class="fu">=</span>
+  shows l <span class="fu">.</span>
+  showString <span class="st">&quot;:&quot;</span> <span class="fu">.</span>
+  shows c
+
+<span class="ot">spanShowsPrec ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Span</span> <span class="ot">-&gt;</span> <span class="dt">ShowS</span>
+spanShowsPrec _ (<span class="dt">Span</span> a b) <span class="fu">=</span>
+  locShowsPrec <span class="dv">10</span> a <span class="fu">.</span>
+  showString <span class="st">&quot;-&quot;</span> <span class="fu">.</span>
+  locShowsPrec <span class="dv">10</span> b</code></pre></div><div class="container"><h2><code>Read</code></h2><p>This was the first time I really explored <code>Read</code> in-depth. It’s a little rough,
+but surprisingly usable (despite not great documentation).</p><p>The parser for <code>Pos</code> is based on the parser for <code>Natural</code>, applying <code>mfilter (/=
+0)</code> to make the parser fail if the input represents a zero.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="ot">posReadPrec ::</span> <span class="dt">ReadPrec</span> <span class="dt">Pos</span>
+posReadPrec <span class="fu">=</span>
+  <span class="dt">Pos</span> <span class="fu">&lt;$&gt;</span> mfilter (<span class="fu">/=</span> <span class="dv">0</span>) readPrec</code></pre></div><div class="container"><p>As a reminder, the type of <code>mfilter</code> is:</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="ot">mfilter ::</span> <span class="dt">MonadPlus</span> m <span class="ot">=&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">Bool</span>) <span class="ot">-&gt;</span> m a <span class="ot">-&gt;</span> m a</code></pre></div><div class="container"><p>The <code>Loc</code> parser uses a very typical <code>Applicative</code> pattern:</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="co">-- | Parses a single specific character.</span>
+<span class="ot">readPrecChar ::</span> <span class="dt">Char</span> <span class="ot">-&gt;</span> <span class="dt">ReadPrec</span> ()
+readPrecChar <span class="fu">=</span> void <span class="fu">.</span> readP_to_Prec <span class="fu">.</span> const <span class="fu">.</span> ReadP.char
+
+<span class="ot">locReadPrec ::</span> <span class="dt">ReadPrec</span> <span class="dt">Loc</span>
+locReadPrec <span class="fu">=</span>
+  <span class="dt">Loc</span>              <span class="fu">&lt;$&gt;</span>
+  readPrec         <span class="fu">&lt;*</span>
+  readPrecChar <span class="ch">&#39;:&#39;</span> <span class="fu">&lt;*&gt;</span>
+  readPrec</code></pre></div><div class="container"><p>We used <code>mfilter</code> above to introduce failure into the <code>Pos</code> parser; for <code>Span</code>
+we’re going to use <code>empty</code>.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="ot">empty ::</span> <span class="dt">Alternative</span> f <span class="ot">=&gt;</span> f a</code></pre></div><div class="container"><p>First we use <code>fromToMay</code> to produce a <code>Maybe Span</code>, and then in the case where
+the result is <code>Nothing</code> we use <code>empty</code> to make the parser fail.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="ot">spanReadPrec ::</span> <span class="dt">ReadPrec</span> <span class="dt">Span</span>
+spanReadPrec <span class="fu">=</span>
+  locReadPrec      <span class="fu">&gt;&gt;=</span> \a <span class="ot">-&gt;</span>
+  readPrecChar <span class="ch">&#39;-&#39;</span> <span class="fu">*&gt;</span>
+  locReadPrec      <span class="fu">&gt;&gt;=</span> \b <span class="ot">-&gt;</span>
+  maybe empty pure (fromToMay a b)</code></pre></div><div class="container"><h2>That’s all folks</h2><p>This wasn’t intensely exciting or weird, but I want to produce more blog posts
+about doing normal stuff in Haskell. The package is called [loc] on Hackage if
+you’d like to investigate further.</p><p>The build tools for <a href="https://joyofhaskell.com/"><i>The Joy of Haskell</i></a> are turning into an interesting
+custom reinvention of Literate Haskell; stay tuned for updates on that!</p><h2>Addendum</h2><p><a href="https://toot.cafe/users/porges/updates/14791">George Pollard asks</a>:</p><blockquote><p>would it maybe make it easier to interpret Loc as a character position (à la
+vim)? then Span with start=end can be a 1-char span and there are no invalid
+ones</p></blockquote><p>This is a nice suggestion, and “no invalid spans” is an appealing pitch. The
+idea is that we could represent a span using two inclusive bounds <i>[start,
+end]</i> rather than an inclusive and an exclusive bound <i>[start, end)</i>.
+Unfortunately, it would end up complicating the API a bit.</p><p>Currently, the library is entirely agnostic of the text that the positions are
+referring to. This means there is no “plus one” operation on <code>Loc</code>, because the
+next <code>Loc</code> after <i>4:17</i> could be either <i>4:18</i> or <i>5:1</i> — we can’t tell without
+knowing the line lengths. Therefore, with inclusive ranges, you can’t tell
+whether span <i>4:16-4:17</i> abuts span <i>5:1-5:2</i> — at least, not without knowing
+whether the character at position <i>4:17</i> is a newline.</p></div></div></div></main><div class="post-footer container"><p>I write about Haskell and related topics; you can find my works online on <a href="http://typeclasses.com">Type Classes</a> and in print from <a href="http://joyofhaskell.com"><span style="text-decoration: italic;">The Joy of Haskell</span></a>.</p></div></body></html>

@@ -1,0 +1,82 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Gradle Scala REPL</title><link rel="icon" href=""><link href="https://fonts.googleapis.com/css?family=Inconsolata|Merriweather" rel="stylesheet"><link rel="stylesheet" type="text/css" href="../hash/bbdb3309c85cc05af4572bd7e5eeb723.css"><meta name="twitter:site:id" content="18271443"><meta name="twitter:title" content="Gradle Scala REPL"></head><body><header class="global-page-header"><div class="container"><a href="..">Chris Martin</a></div></header><main><div><div class="post-head container"><h1 class="post-title">Gradle Scala REPL</h1><div class="post-date">2015 August 8</div></div><div class="post-body"><div class="container"><p>I recently switched a Scala project’s build from SBT to Gradle and was
+disappointed to find that Gradle has no support for launching the
+Scala REPL.</p><p>My workaround:</p><ol><li>Let Gradle compile and output the classpath</li><li>Launch the REPL separately</li></ol><p>At first this felt like a kludge around a deficiency in Gradle, but now
+I think this approach may actually make more sense than SBT’s conflation
+of build tool and REPL. The build tool doesn’t need to be responsible for
+<i>everything</i>.</p><h2>Launching the REPL from the scala-compiler jar</h2><p>Normally you’d launch the REPL using the <code>scala</code> script provided by the
+standard Scala installation. But I’d prefer to let Gradle download the
+appropriate version of Scala for the project rather than requiring
+developers to install it themselves. Gradle can help us with this because
+the artifact <code>org.scala-lang:scala-compiler</code> in the Maven Central repo
+contains the Scala REPL.</p><p>The <code>main</code> method that launches the REPL belongs to a class with the
+(rather non-obvious) name <code>scala.tools.nsc.MainGenericRunner</code>.
+Thus we need to run</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="ex">java</span> -Dscala.usejavacp=true \
+     -classpath <span class="st">&quot;</span><span class="va">$CLASSPATH</span><span class="st">&quot;</span> \
+     scala.tools.nsc.MainGenericRunner</code></pre></div><div class="container"><p>where <code>$CLASSPATH</code> includes the <code>scala-compiler</code> jar.</p><h2>Fetching the jar with Gradle</h2><p>To let Gradle provide the scala-compiler artifact for us, add it
+as a <code>classpath</code> dependency to <code>buildscript</code>.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode">buildscript {
+    dependencies {
+        classpath &quot;org.scala-lang:scala-compiler:${scalaVersion}&quot;
+    }
+    repositories {
+        mavenCentral()
+    }
+}</code></pre></div><div class="container"><p>Then add a function to look up the filesystem path of this artifact,
+which we’ll use later when assembling the full classpath for the
+REPL session.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode">def scalaPath = buildscript.configurations.classpath.find {
+    it.name == &quot;scala-compiler-${scalaVersion}.jar&quot;
+}</code></pre></div><div class="container"><h2>Generating the classpath</h2><p>Getting the classpath for your project and its dependencies in Gradle
+is pretty simple.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode">def classpath = sourceSets.main.runtimeClasspath.asPath</code></pre></div><div class="container"><p>Combined with the path of the Scala compiler, the result is the full
+classpath that we’ll use for launching the REPL.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode">task printClasspath &lt;&lt; {
+    println &quot;${scalaPath}:${classpath}&quot;
+}</code></pre></div><div class="container"><p>With this task defined, call <code>gradle printClasspath --quiet</code> to set the
+classpath in the startup script.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="ex">java</span> -Dscala.usejavacp=true \
+     -classpath <span class="st">&quot;</span><span class="va">$(</span><span class="ex">gradle</span> printClasspath --quiet<span class="va">)</span><span class="st">&quot;</span> \
+     scala.tools.nsc.MainGenericRunner</code></pre></div><div class="container"><h2>Initial REPL commands</h2><p>SBT has a useful setting that lets you specify Scala expressions that
+run automatically when the REPL starts. This tends to save you the
+trouble of repeating a lot of imports every time you start a session.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode">initialCommands in console := <span class="st">&quot;...&quot;</span></code></pre></div><div class="container"><p>You can accomplish this using the <code>-i</code> option on the Scala REPL, which
+loads commands from a file. In this example, the file containing initial
+commands is named <code>repl.scala</code>.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="ex">java</span> -Dscala.usejavacp=true \
+     -classpath <span class="st">&quot;</span><span class="va">$(</span><span class="ex">gradle</span> printClasspath --quiet<span class="va">)</span><span class="st">&quot;</span> \
+     scala.tools.nsc.MainGenericRunner \
+     -i repl.scala</code></pre></div><div class="container"><h2>Full example</h2><p><b>build.gradle</b></p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode">project(&#39;:repl&#39;) {
+
+    def scalaVersion = &#39;2.11.7&#39;
+
+    // Dependencies on any other projects that should be
+    // accessible from the REPL context.
+    dependencies {
+        compile project(&#39;:example_project_1&#39;)
+        compile project(&#39;:example_project_2&#39;)
+    }
+
+    // Require the scala-compiler jar
+    buildscript {
+        dependencies {
+            classpath &quot;org.scala-lang:scala-compiler:${scalaVersion}&quot;
+        }
+        repositories {
+            mavenCentral()
+        }
+    }
+
+    // The path of the scala-compiler jar
+    def scalaPath = buildscript.configurations.classpath.find {
+        it.name == &quot;scala-compiler-${scalaVersion}.jar&quot;
+    }
+
+    // The classpath of this project and its dependencies
+    def classpath = sourceSets.main.runtimeClasspath.asPath
+
+    // Prints the classpath needed to launch the REPL
+    task printClasspath &lt;&lt; {
+        println &quot;${scalaPath}:${classpath}&quot;
+    }
+
+}</code></pre></div><div class="container"><p><b>repl.sh</b></p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="co">#!/bin/bash</span>
+<span class="ex">gradle</span> :repl:compileScala <span class="kw">&amp;&amp;</span> <span class="kw">\</span>
+<span class="ex">java</span> -Dscala.usejavacp=true \
+     -classpath <span class="st">&quot;</span><span class="va">$(</span><span class="ex">gradle</span> :repl:printClasspath --quiet<span class="va">)</span><span class="st">&quot;</span> \
+     scala.tools.nsc.MainGenericRunner \
+     -i repl.scala</code></pre></div><div class="container"><p><b>repl.scala</b></p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode">myproject.<span class="fu">repl</span>.<span class="fu">init</span>()
+<span class="kw">import</span> myproject.<span class="fu">repl</span>.<span class="fu">_</span></code></pre></div><div class="container"></div></div></div></main><div class="post-footer container"><p>I write about Haskell and related topics; you can find my works online on <a href="http://typeclasses.com">Type Classes</a> and in print from <a href="http://joyofhaskell.com"><span style="text-decoration: italic;">The Joy of Haskell</span></a>.</p></div></body></html>

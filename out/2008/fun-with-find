@@ -1,0 +1,28 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Fun with find</title><link rel="icon" href=""><link href="https://fonts.googleapis.com/css?family=Inconsolata|Merriweather" rel="stylesheet"><link rel="stylesheet" type="text/css" href="../hash/bbdb3309c85cc05af4572bd7e5eeb723.css"><meta name="twitter:site:id" content="18271443"><meta name="twitter:title" content="Fun with find"></head><body><header class="global-page-header"><div class="container"><a href="..">Chris Martin</a></div></header><main><div><div class="post-head container"><h1 class="post-title">Fun with find</h1><div class="post-date">2008 April 24</div></div><div class="post-body"><div class="container"><p><code>find</code> is one of many simple yet powerful command-line tools, and I haven’t
+until recently had a chance to learn how to use it. Oh, the things you can do.
+Here’s a fun example Matt Luongo and I worked out a few days ago, plus a bit I
+added on just now:</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="fu">find</span> -name <span class="st">&quot;*.java&quot;</span> \
+    <span class="kw">|</span> <span class="fu">xargs</span> wc -l   \
+    <span class="kw">|</span> <span class="fu">sort</span> -nr      \
+    <span class="kw">|</span> <span class="fu">head</span> -n 5     \
+    <span class="kw">|</span> <span class="fu">sed</span> -r -e <span class="st">&#39;s/\.\/(.*\/)*//g&#39;</span></code></pre></div><div class="container"><p><code>find</code> recursively enumerates all of the files within the current directory
+which match the name *.java.</p><p>The result of that gets piped to <code>xargs</code>, which takes each line (a file path)
+and sends them as arguments to <code>wc</code> (word count). The <code>-l</code> flag tells <code>wc</code>
+to count the number of lines in each file, and also give a total count.</p><p>This is a pretty big list of files, and the most interesting results are the
+largest ones. So, the next pipe goes to <code>sort</code>. <code>-n</code> tells it sort by number,
+not alphabetically, and <code>-r</code> sorts in reverse other to put the biggest numbers
+on top.</p><p>It’s sorted, but I still only care about the first few, so I pipe that into
+<code>head</code>, whose <code>-n</code> parameter lets me specify that I only want the first 5
+lines.</p><p>Finally, the line length of the output is pretty long, because it’s showing the
+entire relative path to the files, which are somewhat deeply nested. I only
+want to see the filenames. Fortunately, this is nothing that a simple regex
+can’t handle, and <code>sed</code> is up to the task with a search-and-replace which
+yields exactly what I’m looking for.</p><p>I ran this from the SVN directory for my software engineering project to see
+how much code we’d produced. The result:</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"> 18208 total
+   706 Connection.java
+   636 ColabClient.java
+   632 ColabClientGUI.java
+   506 ParagraphEditor.java</code></pre></div><div class="container"><p>Fascinating.</p><p>Instead of writing this, I really should have spent the last half hour
+sleeping. I do only have one more day to debug 18208 lines of Java for our
+final demo.</p></div></div></div></main><div class="post-footer container"><p>I write about Haskell and related topics; you can find my works online on <a href="http://typeclasses.com">Type Classes</a> and in print from <a href="http://joyofhaskell.com"><span style="text-decoration: italic;">The Joy of Haskell</span></a>.</p></div></body></html>

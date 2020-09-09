@@ -1,0 +1,19 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>What is a leak?</title><link rel="icon" href=""><link href="https://fonts.googleapis.com/css?family=Inconsolata|Merriweather" rel="stylesheet"><link rel="stylesheet" type="text/css" href="../hash/bbdb3309c85cc05af4572bd7e5eeb723.css"><meta name="twitter:site:id" content="18271443"><meta name="twitter:title" content="What is a leak?"></head><body><header class="global-page-header"><div class="container"><a href="..">Chris Martin</a></div></header><main><div><div class="post-head container"><h1 class="post-title">What is a leak?</h1><div class="post-date">2017 April 24</div></div><div class="post-body"><div class="container"><p>“Leak” is one of those technical words we often forget to explain.</p><p>A <i>leak</i> refers to something that consumes some resource in a way that you can’t
+get it back, like water leaking out of a hole in a bucket and falling onto the
+ground.</p><p>Regarding a <i>memory leak</i>, it’s natural to ask “Where does the memory go?”
+There’s no good answer to that question, because the analogy just doesn’t extend
+that far.</p><p>Memory is a sort of renewable resource. We use some of it every time we make a
+thunk, and it gets released when we’re done with it. You take a little water out
+of the bucket, use it for a while, then the garbage collector puts it back.</p><p>If your program is accidentally written such that it continues to hold
+references to things it doesn’t need anymore, then those things don’t get
+garbage collected, and you continually consume more and more memory.</p><p>Or in other words — if you look at it from the perspective that you only have a
+finite amount of memory in your computer — you continually <i>lose</i> memory. More
+precisely, you lose <i>available</i> memory — free space in which to make more thunks
+and whatnot. If that program runs long enough, this bucket will eventually end
+up empty.</p><p>We also talk about leaking other resources, like <i>file handles</i>. The OS keeps
+track of all the files that all the processes have open, and there’s only some
+finite number of files your OS can keep open at one time. This is in part
+because keeping a file open requires keeping some information about it in
+memory, so in some sense a file handle leak is just another kind of memory leak.</p><p>So don’t take the “leaking” metaphor too seriously; it just refers to anything
+that unnecessarily causes the dwindling availability of some limited resource.</p></div></div></div></main><div class="post-footer container"><p>I write about Haskell and related topics; you can find my works online on <a href="http://typeclasses.com">Type Classes</a> and in print from <a href="http://joyofhaskell.com"><span style="text-decoration: italic;">The Joy of Haskell</span></a>.</p></div></body></html>

@@ -1,0 +1,67 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Elephant variable reassignment</title><link rel="icon" href=""><link href="https://fonts.googleapis.com/css?family=Inconsolata|Merriweather" rel="stylesheet"><link rel="stylesheet" type="text/css" href="../hash/bbdb3309c85cc05af4572bd7e5eeb723.css"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://chris-martin.org/hash/9a1dc41ea196e6408aa6709f9bfd4c99.png"><meta name="twitter:description" content="Using (.=) from microlens-mtl to write Haskell that
+resembles reassignment of mutable variables."><meta name="twitter:site:id" content="18271443"><meta name="twitter:title" content="Elephant variable reassignment"></head><body><header class="global-page-header"><div class="container"><a href="..">Chris Martin</a></div></header><main><div><div class="post-head container"><h1 class="post-title">Elephant variable reassignment</h1><div class="post-date">2017 August 27</div></div><div class="post-body"><div class="container"><p>This demonstration was inspired by a <a href="https://stackoverflow.com/questions/43525193">Stack Overflow question</a>
+which asks:</p><blockquote><p>How can I re-assign a variable in a function in Haskell?</p><p>For example,</p><pre><code class="haskell">elephant = 0
+
+setElephant x =
+  elephant = x</code></pre></blockquote><p>The short answer is that we don&#39;t have a language-level mechanism to model that
+sort of thing in Haskell, and it&#39;s generally not what you want anyway.</p><p>Here I give a <i>long answer</i>, demonstrating how to use lenses and the state monad
+to produce something that looks like a direct translation of the
+imperative-programming concept of reassigning a variable.</p><p>We will be using the <code>(.=)</code> operator (which also has an alias called <code>assign</code>)
+from the <a href="https://hackage.haskell.org/package/microlens-mtl"><code>microlens-mtl</code></a> library.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="ot">(.=) ::</span> <span class="dt">MonadState</span> s m <span class="ot">=&gt;</span> <span class="dt">ASetter</span> s s a b <span class="ot">-&gt;</span> b <span class="ot">-&gt;</span> m ()</code></pre></div><div class="container"><p>The first argument (having type <code>ASetter</code>) is the lens which specifies <i>what
+part of</i> the state to update, and the second is the new value to set at the
+position specified by the lens.</p><h2>The code</h2></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="ot">{-# LANGUAGE ConstraintKinds, InstanceSigs, PackageImports #-}</span>
+
+<span class="kw">module</span> <span class="dt">Elephant</span> <span class="kw">where</span></code></pre></div><div class="container"><p>I&#39;m using the <code>PackageImports</code> extension just for clarity, to show what packages
+these imported modules are coming from.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">import </span>&quot;base&quot;          <span class="dt">Control.Monad.IO.Class</span>    ( <span class="dt">MonadIO</span> (liftIO) )
+<span class="kw">import </span>&quot;microlens&quot;     <span class="dt">Lens.Micro</span>                ( <span class="dt">Lens&#39;</span>, lens )
+<span class="kw">import </span>&quot;microlens-mtl&quot; <span class="dt">Lens.Micro.Mtl</span>            ( (.=), use )
+<span class="kw">import </span>&quot;mtl&quot;           <span class="dt">Control.Monad.State.Class</span> ( <span class="dt">MonadState</span> )
+<span class="kw">import </span>&quot;transformers&quot;  <span class="dt">Control.Monad.Trans.State</span> ( <span class="dt">StateT</span> (runStateT) )</code></pre></div><div class="container"><p>Let&#39;s assume that elephants can be modeled by integers.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">type</span> <span class="dt">Elephant</span> <span class="fu">=</span> <span class="dt">Integer</span></code></pre></div><div class="container"><p>We&#39;re going to want our program state to have an elephant, so first we&#39;ll define
+what it means to have an elephant. A lens captures this notion nicely.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">class</span> <span class="dt">HasElephant</span> a
+  <span class="kw">where</span>
+<span class="ot">    elephant ::</span> <span class="dt">Lens&#39;</span> a <span class="dt">Elephant</span></code></pre></div><div class="container"><p>We&#39;ll say that a monad “has elephant state” if</p><ol><li>it has state, and</li><li>its state has an elephant.</li></ol></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">type</span> <span class="dt">HasElephantState</span> s m <span class="fu">=</span>
+  (<span class="dt">MonadState</span> s m, <span class="dt">HasElephant</span> s)</code></pre></div><div class="container"><p>(The <code>HasElephantState</code> type alias is what we need the <code>ConstraintKinds</code>
+extension for.)</p><p>Now we can define the action that the question asks for. It operates in some
+monad that has elephant state, and it assigns a value for the elephant in that
+state.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode">setElephant
+<span class="ot">  ::</span> <span class="dt">HasElephantState</span> s m
+  <span class="ot">=&gt;</span> <span class="dt">Elephant</span> <span class="ot">-&gt;</span> m ()
+setElephant x <span class="fu">=</span>
+  elephant <span class="fu">.=</span> x</code></pre></div><div class="container"><p>Let&#39;s also define an action that prints the elephant. In addition to elephant
+state, this context also requires I/O.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode">printElephant
+<span class="ot">  ::</span> (<span class="dt">HasElephantState</span> s m, <span class="dt">MonadIO</span> m)
+  <span class="ot">=&gt;</span> m ()
+printElephant <span class="fu">=</span>
+  <span class="kw">do</span>
+    e <span class="ot">&lt;-</span> use elephant
+    liftIO (putStrLn (<span class="st">&quot;The current elephant is &quot;</span> <span class="fu">++</span> show e))</code></pre></div><div class="container"><p>The African forest elephant (Loxodonta cyclotis) is a forest-dwelling species of
+elephant found in the Congo Basin. For this demonstration we will use <code>Congo</code> as
+an example of something that has an elephant.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">data</span> <span class="dt">Congo</span> <span class="fu">=</span> <span class="dt">Congo</span>
+  {<span class="ot"> congoElephant ::</span> <span class="dt">Elephant</span> }</code></pre></div><div class="container"><p>We must define the way in which <code>Congo</code> has an elephant. The lens defines how to
+get an elephant from the Congo, and how to put an elephant into the Congo.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">instance</span> <span class="dt">HasElephant</span> <span class="dt">Congo</span>
+  <span class="kw">where</span>
+<span class="ot">    elephant ::</span> <span class="dt">Lens&#39;</span> <span class="dt">Congo</span> <span class="dt">Elephant</span>
+    elephant <span class="fu">=</span>
+      lens
+        congoElephant
+        (\a b <span class="ot">-&gt;</span> a{ congoElephant <span class="fu">=</span> b })</code></pre></div><div class="container"><p>You&#39;ll often see people use Template Haskell or generics to generate lenses
+automatically, but here we defined the lens manually.</p><p>Now we can write a program. It has the same context as above: elephant state and
+I/O. Our program prints the value of <code>elephant</code>, then changes the value of <code>elephant</code>, then prints it again.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode">main&#39;
+<span class="ot">  ::</span> (<span class="dt">HasElephantState</span> s m, <span class="dt">MonadIO</span> m)
+  <span class="ot">=&gt;</span> m ()
+main&#39; <span class="fu">=</span>
+  <span class="kw">do</span>
+    printElephant
+    setElephant <span class="dv">2</span>
+    printElephant</code></pre></div><div class="container"><p>Then we can convert this program to <code>IO</code>. We specialize <code>main&#39;</code> as <code>StateT Congo
+IO ()</code>, and we use a Congo with elephant zero as the program&#39;s initial state.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="ot">main ::</span> <span class="dt">IO</span> ()
+main <span class="fu">=</span>
+  <span class="kw">let</span>
+    program <span class="fu">=</span>
+<span class="ot">      main&#39; ::</span> <span class="dt">StateT</span> <span class="dt">Congo</span> <span class="dt">IO</span> ()
+    initialState <span class="fu">=</span>
+      <span class="dt">Congo</span>{ congoElephant <span class="fu">=</span> <span class="dv">0</span> }
+  <span class="kw">in</span>
+    () <span class="fu">&lt;$</span> runStateT program initialState</code></pre></div><div class="container"><p>When we run this program, its output is:</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode">The current elephant is 0
+The current elephant is 2</code></pre></div><div class="container"><hr style="margin: 2em 0;"><p><i>You can find this code on <a href="https://github.com/chris-martin/elephant">GitHub</a>.</i></p></div></div></div></main><div class="post-footer container"><p>I write about Haskell and related topics; you can find my works online on <a href="http://typeclasses.com">Type Classes</a> and in print from <a href="http://joyofhaskell.com"><span style="text-decoration: italic;">The Joy of Haskell</span></a>.</p></div></body></html>

@@ -1,0 +1,13 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NixOS on DigitalOcean</title><link rel="icon" href=""><link href="https://fonts.googleapis.com/css?family=Inconsolata|Merriweather" rel="stylesheet"><link rel="stylesheet" type="text/css" href="../hash/7feeb79ff992c21b6e787cfd7f3a9386.css"><meta name="twitter:site:id" content="18271443"><meta name="twitter:title" content="NixOS on DigitalOcean"></head><body><header class="global-page-header"><div class="container"><a href="..">Chris Martin</a></div></header><main><div><div class="post-head container"><h1 class="post-title">NixOS on DigitalOcean</h1><div class="post-date">2016 October 5</div></div><div class="post-body"><div class="container"><p>How to start a new NixOS droplet on Digital Ocean using
+<a href="https://github.com/elitak/nixos-infect">nixos-infect</a>:</p><ol><li>Start an Ubuntu 16.04 droplet.</li><li>Enable ipv6.</li><li>
+    Add your key to <code>~/.ssh/authorized_keys</code> and SSH in as root.
+</li><li>Download nixos-infect:</li></ol></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="fu">wget</span> https://raw.githubusercontent.com/elitak/nixos-infect/master/nixos-infect</code></pre></div><div class="container"><ol start="5"><li>Run nixos-infect:</li></ol></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="fu">bash</span> nixos-infect</code></pre></div><div class="container"><ol start="6"><li>
+    NixOS will install (this takes a little while) and the machine will reboot.
+</li><li>SSH in as root again.</li><li>
+    Update <code>/etc/nixos/configuration.nix</code> to set up things like
+    SSH and users.
+</li><li>Rebuild NixOS:</li></ol></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="ex">nixos-rebuild</span> switch</code></pre></div><div class="container"><ol start="10"><li>
+    Use `passwd` to set user passwords. Remember to do this for at least one
+    sudoer so you don’t lock yourself out of the machine!
+</li></ol></div></div></div></main><div class="post-footer container"><p>I write about Haskell and related topics; you can find my works online on <a href="http://typeclasses.com">Type Classes</a> and in print from <a href="http://joyofhaskell.com"><span style="text-decoration: italic;">The Joy of Haskell</span></a>.</p></div></body></html>

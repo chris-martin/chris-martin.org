@@ -1,0 +1,237 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Some Applicative Functors</title><link rel="icon" href=""><link href="https://fonts.googleapis.com/css?family=Inconsolata|Merriweather" rel="stylesheet"><link rel="stylesheet" type="text/css" href="../hash/bbdb3309c85cc05af4572bd7e5eeb723.css"><meta name="twitter:site:id" content="18271443"><meta name="twitter:title" content="Some Applicative Functors"></head><body><header class="global-page-header"><div class="container"><a href="..">Chris Martin</a></div></header><main><div><div class="post-head container"><h1 class="post-title">Some Applicative Functors</h1><div class="post-date">2017 March 12</div></div><div class="post-body"><div class="container"><p>Types are great. Lifting them into some sort of applicative functor makes them
+even better. This post is an homage to our favorite applicatives, and to the
+semigroups with which they are instrinsically connected.</p><h2>Lifted-but-why</h2><p><b><code>LiftedButWhy</code></b> is a boring functor that just has one value and no other
+structure or interesting properties.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">data</span> <span class="dt">LiftedButWhy</span> a <span class="fu">=</span>
+
+  <span class="co">-- A value that has been lifted</span>
+  <span class="co">-- for some damned reason</span>
+  <span class="dt">LiftedButWhy</span> a
+
+  <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Functor</span>, <span class="dt">Show</span>)</code></pre></div><div class="container"><p>… Okay, to be honest, this one is <i>nobody’s</i> favorite, but it is included here
+for completeness.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">instance</span> <span class="dt">Applicative</span> <span class="dt">LiftedButWhy</span> <span class="kw">where</span>
+
+  pure <span class="fu">=</span> <span class="dt">LiftedButWhy</span>
+
+  <span class="dt">LiftedButWhy</span> f <span class="fu">&lt;*&gt;</span> <span class="dt">LiftedButWhy</span> a <span class="fu">=</span>
+    <span class="dt">LiftedButWhy</span> (f a)</code></pre></div><div class="container"><br></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">instance</span> <span class="dt">Monad</span> <span class="dt">LiftedButWhy</span> <span class="kw">where</span>
+
+  <span class="dt">LiftedButWhy</span> a <span class="fu">&gt;&gt;=</span> f <span class="fu">=</span> f a</code></pre></div><div class="container"><br></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">instance</span> <span class="dt">Semigroup</span> a <span class="ot">=&gt;</span>
+    <span class="dt">Semigroup</span> (<span class="dt">LiftedButWhy</span> a) <span class="kw">where</span>
+
+  <span class="dt">LiftedButWhy</span> x <span class="fu">&lt;&gt;</span> <span class="dt">LiftedButWhy</span> y <span class="fu">=</span>
+    <span class="dt">LiftedButWhy</span> (x <span class="fu">&lt;&gt;</span> y)</code></pre></div><div class="container"><br></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">instance</span> <span class="dt">Monoid</span> a <span class="ot">=&gt;</span>
+    <span class="dt">Monoid</span> (<span class="dt">LiftedButWhy</span> a) <span class="kw">where</span>
+
+  mempty <span class="fu">=</span> <span class="dt">LiftedButWhy</span> mempty</code></pre></div><div class="container"><h2>Or-not</h2><p><b><code>OrNot</code></b> is somehow slightly more interesting than <code>LiftedButWhy</code>, even
+though it may actually contain <i>less</i>. Instead of a value, there might <i>not</i>
+be a value.</p><p>When you combine stuff with <code>(&lt;*&gt;)</code> or <code>(&lt;&gt;)</code>, all of the values need to be
+present. If any of them are absent, the whole expression evaluates to <code>Nope</code>.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">data</span> <span class="dt">OrNot</span> a <span class="fu">=</span>
+  <span class="dt">ActuallyYes</span> a <span class="co">-- Some normal value</span>
+  <span class="fu">|</span> <span class="dt">Nope</span>        <span class="co">-- Chuck Testa</span>
+  <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Functor</span>, <span class="dt">Show</span>)</code></pre></div><div class="container"><p>If you have a function <code>f</code> that might not actually be there, and a value <code>a</code>
+that might not actually be there, lifted application <code>(&lt;*&gt;)</code> gives you <code>f a</code>
+only if both of them are actually there.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">instance</span> <span class="dt">Applicative</span> <span class="dt">OrNot</span> <span class="kw">where</span>
+
+  pure <span class="fu">=</span> <span class="dt">ActuallyYes</span>
+
+  <span class="dt">ActuallyYes</span> f <span class="fu">&lt;*&gt;</span> <span class="dt">ActuallyYes</span> a <span class="fu">=</span>
+    <span class="dt">ActuallyYes</span> (f a)
+  _ <span class="fu">&lt;*&gt;</span> _ <span class="fu">=</span> <span class="dt">Nope</span></code></pre></div><div class="container"><br></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">instance</span> <span class="dt">Monad</span> <span class="dt">OrNot</span> <span class="kw">where</span>
+
+  <span class="dt">ActuallyYes</span> a <span class="fu">&gt;&gt;=</span> f <span class="fu">=</span> f a
+  <span class="dt">Nope</span>          <span class="fu">&gt;&gt;=</span> _ <span class="fu">=</span> <span class="dt">Nope</span></code></pre></div><div class="container"><p>If you have value <code>a</code> that may not actually be there, and another value <code>a&#39;</code>
+that might not actually be there, the lifted semigroup operation <code>(&lt;&gt;)</code> gives
+you <code>a &lt;&gt; a&#39;</code> only if both of them are actually there.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">instance</span> <span class="dt">Semigroup</span> a <span class="ot">=&gt;</span>
+    <span class="dt">Semigroup</span> (<span class="dt">OrNot</span> a) <span class="kw">where</span>
+
+  <span class="dt">ActuallyYes</span> a <span class="fu">&lt;&gt;</span> <span class="dt">ActuallyYes</span> a&#39; <span class="fu">=</span>
+    <span class="dt">ActuallyYes</span> (a <span class="fu">&lt;&gt;</span> a&#39;)
+  _ <span class="fu">&lt;&gt;</span> _ <span class="fu">=</span> <span class="dt">Nope</span></code></pre></div><div class="container"><br></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">instance</span> <span class="dt">Monoid</span> a <span class="ot">=&gt;</span>
+    <span class="dt">Monoid</span> (<span class="dt">OrNot</span> a) <span class="kw">where</span>
+
+  mempty <span class="fu">=</span> <span class="dt">ActuallyYes</span> mempty</code></pre></div><div class="container"><h2>Two</h2><p><b><code>Two</code></b> is <i>two</i> values. Yep. Just two values.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">data</span> <span class="dt">Two</span> a <span class="fu">=</span> <span class="dt">Two</span>
+  {<span class="ot"> firstOfTwo  ::</span> a <span class="co">-- One value</span>
+  ,<span class="ot"> secondOfTwo ::</span> a <span class="co">-- Another value</span>
+  } <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Functor</span>, <span class="dt">Show</span>)</code></pre></div><div class="container"><p>If you have two functions <code>f</code> and <code>g</code> and two values <code>a</code> and <code>a&#39;</code>, then you
+can apply them with <code>(&lt;*&gt;)</code> to get two results <code>f a</code> and <code>g a&#39;</code>.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">instance</span> <span class="dt">Applicative</span> <span class="dt">Two</span> <span class="kw">where</span>
+
+  pure a <span class="fu">=</span> <span class="dt">Two</span> a a
+
+  <span class="dt">Two</span> f g <span class="fu">&lt;*&gt;</span> <span class="dt">Two</span> a a&#39; <span class="fu">=</span> <span class="dt">Two</span> (f a) (g a&#39;)</code></pre></div><div class="container"><br></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">instance</span> <span class="dt">Semigroup</span> a <span class="ot">=&gt;</span>
+    <span class="dt">Semigroup</span> (<span class="dt">Two</span> a) <span class="kw">where</span>
+
+  <span class="dt">Two</span> x y <span class="fu">&lt;&gt;</span> <span class="dt">Two</span> x&#39; y&#39; <span class="fu">=</span>
+    <span class="dt">Two</span> (x <span class="fu">&lt;&gt;</span> x&#39;) (y <span class="fu">&lt;&gt;</span> y&#39;)</code></pre></div><div class="container"><br></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">instance</span> <span class="dt">Monoid</span> a <span class="ot">=&gt;</span>
+    <span class="dt">Monoid</span> (<span class="dt">Two</span> a) <span class="kw">where</span>
+
+  mempty <span class="fu">=</span> <span class="dt">Two</span> mempty mempty</code></pre></div><div class="container"><h2>Any-number-of</h2><p><b><code>AnyNumberOf</code></b> starts to get exciting. Any number of values you want. Zero …
+one … two … three … four … five … The possibilities are <i>truly</i> endless.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">data</span> <span class="dt">AnyNumberOf</span> a <span class="fu">=</span>
+
+  <span class="co">-- One value, and maybe even more after that!</span>
+  <span class="dt">OneAndMaybeMore</span> a (<span class="dt">AnyNumberOf</span> a)
+
+  <span class="co">-- Oh. Well this is less fun.</span>
+  <span class="fu">|</span> <span class="dt">ActuallyNone</span>
+
+  <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Functor</span>, <span class="dt">Show</span>)</code></pre></div><div class="container"><p>Here’s an alias for <code>OneAndMaybeMore</code> which provides some brevity:</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="ot">(~~) ::</span> a <span class="ot">-&gt;</span> <span class="dt">AnyNumberOf</span> a <span class="ot">-&gt;</span> <span class="dt">AnyNumberOf</span> a
+(<span class="fu">~~</span>) <span class="fu">=</span> <span class="dt">OneAndMaybeMore</span>
+<span class="kw">infixr</span> <span class="dv">5</span> <span class="fu">~~</span></code></pre></div><div class="container"><p>You can use the applicative functor to apply any number of functions to any
+number of arguments.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">instance</span> <span class="dt">Applicative</span> <span class="dt">AnyNumberOf</span> <span class="kw">where</span>
+
+  pure a <span class="fu">=</span> <span class="dt">OneAndMaybeMore</span> a <span class="dt">ActuallyNone</span>
+
+  <span class="dt">OneAndMaybeMore</span> f fs <span class="fu">&lt;*&gt;</span> <span class="dt">OneAndMaybeMore</span> x xs <span class="fu">=</span>
+    <span class="dt">OneAndMaybeMore</span> (f x) (fs <span class="fu">&lt;*&gt;</span> xs)
+  _ <span class="fu">&lt;*&gt;</span> _ <span class="fu">=</span> <span class="dt">ActuallyNone</span></code></pre></div><div class="container"><p>Example:</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode">   ((<span class="fu">+</span> <span class="dv">1</span>) <span class="fu">~~</span> (<span class="fu">*</span> <span class="dv">2</span>) <span class="fu">~~</span>       <span class="dt">ActuallyNone</span>)
+<span class="fu">&lt;*&gt;</span> (  <span class="dv">1</span>  <span class="fu">~~</span>    <span class="dv">6</span>  <span class="fu">~~</span> <span class="dv">37</span> <span class="fu">~~</span> <span class="dt">ActuallyNone</span>)
+ <span class="fu">=</span>  (  <span class="dv">7</span>  <span class="fu">~~</span>   <span class="dv">12</span>  <span class="fu">~~</span>       <span class="dt">ActuallyNone</span>)</code></pre></div><div class="container"><p>This example demonstrates how when there are more arguments than functions, any
+excess arguments (in this case, the <code>37</code>) are ignored.</p><p>The operation of combining some number of <code>a</code> with some other number of <code>a</code> is
+sometimes referred to as <i>zipping</i>.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">instance</span> <span class="dt">Semigroup</span> a <span class="ot">=&gt;</span>
+    <span class="dt">Semigroup</span> (<span class="dt">AnyNumberOf</span> a) <span class="kw">where</span>
+
+  <span class="dt">OneAndMaybeMore</span> x xs <span class="fu">&lt;&gt;</span> <span class="dt">OneAndMaybeMore</span> y ys <span class="fu">=</span>
+    <span class="dt">OneAndMaybeMore</span> (x <span class="fu">&lt;&gt;</span> y) (xs <span class="fu">&lt;&gt;</span> ys)
+  _ <span class="fu">&lt;&gt;</span> _ <span class="fu">=</span> <span class="dt">ActuallyNone</span></code></pre></div><div class="container"><br></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">instance</span> <span class="dt">Monoid</span> a <span class="ot">=&gt;</span>
+    <span class="dt">Monoid</span> (<span class="dt">AnyNumberOf</span> a) <span class="kw">where</span>
+
+  mempty <span class="fu">=</span> mempty <span class="fu">~~</span> mempty</code></pre></div><div class="container"><h2>One-or-more</h2><p><b><code>OneOrMore</code></b> is more restrictive than <code>AnyNumberOf</code>, yet somehow actually
+<i>more</i> interesting, because it excludes that dull situation where there aren’t
+any values at all.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">data</span> <span class="dt">OneOrMore</span> a <span class="fu">=</span> <span class="dt">OneOrMore</span>
+
+  <span class="co">-- Definitely at least this one</span>
+  {<span class="ot"> theFirstOfMany ::</span> a
+
+  <span class="co">-- And perhaps others</span>
+  ,<span class="ot"> possiblyMore ::</span> <span class="dt">AnyNumberOf</span> a
+
+  } <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Functor</span>, <span class="dt">Show</span>)</code></pre></div><div class="container"><br></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">instance</span> <span class="dt">Applicative</span> <span class="dt">OneOrMore</span> <span class="kw">where</span>
+
+  pure a <span class="fu">=</span> <span class="dt">OneOrMore</span> a <span class="dt">ActuallyNone</span>
+
+  <span class="dt">OneOrMore</span> f fs <span class="fu">&lt;*&gt;</span> <span class="dt">OneOrMore</span> x xs <span class="fu">=</span>
+    <span class="dt">OneOrMore</span> (f x) (fs <span class="fu">&lt;*&gt;</span> xs)</code></pre></div><div class="container"><br></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">instance</span> <span class="dt">Semigroup</span> a <span class="ot">=&gt;</span>
+    <span class="dt">Semigroup</span> (<span class="dt">OneOrMore</span> a) <span class="kw">where</span>
+
+  <span class="dt">OneOrMore</span> a more <span class="fu">&lt;&gt;</span> <span class="dt">OneOrMore</span> a&#39; more&#39; <span class="fu">=</span>
+    <span class="dt">OneOrMore</span> a (more <span class="fu">&lt;&gt;</span> <span class="dt">OneAndMaybeMore</span> a&#39; more&#39;)</code></pre></div><div class="container"><br></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">instance</span> <span class="dt">Monoid</span> a <span class="ot">=&gt;</span>
+    <span class="dt">Monoid</span> (<span class="dt">OneOrMore</span> a) <span class="kw">where</span>
+
+  mempty <span class="fu">=</span> <span class="dt">OneOrMore</span> mempty <span class="dt">ActuallyNone</span></code></pre></div><div class="container"><h2>Also-extra-thing</h2><p><b><code>Also extraThing</code></b> is a functor in which each value has an <code>extraThing</code> of
+some other type that tags along with it.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">data</span> (<span class="dt">Also</span> extraThing) a <span class="fu">=</span> <span class="dt">Also</span>
+
+  <span class="co">-- A value</span>
+  {<span class="ot"> withoutExtraThing ::</span> a
+
+  <span class="co">-- An additional thing that tags along</span>
+  ,<span class="ot"> theExtraThing ::</span> extraThing
+
+  } <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Functor</span>, <span class="dt">Show</span>)</code></pre></div><div class="container"><p>Dragging the <code>extraThing</code> along can be a bit of a burden. It prevents <code>Also
+extraThing</code> from being an applicative functor — unless the <code>extraThing</code> can pull
+its weight by bringing a monoid to the table.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">instance</span> <span class="dt">Monoid</span> extraThing <span class="ot">=&gt;</span>
+    <span class="dt">Applicative</span> (<span class="dt">Also</span> extraThing) <span class="kw">where</span>
+
+  pure <span class="fu">=</span> (<span class="ot">`Also`</span> mempty)
+
+  (f <span class="ot">`Also`</span> extra1) <span class="fu">&lt;*&gt;</span> (a <span class="ot">`Also`</span> extra2) <span class="fu">=</span>
+    f a
+    <span class="ot">`Also`</span> (extra1 <span class="fu">&lt;&gt;</span> extra2)</code></pre></div><div class="container"><br></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">instance</span> (<span class="dt">Semigroup</span> extraThing, <span class="dt">Semigroup</span> a) <span class="ot">=&gt;</span>
+    <span class="dt">Semigroup</span> ((<span class="dt">Also</span> extraThing) a) <span class="kw">where</span>
+
+  (a <span class="ot">`Also`</span> extra1) <span class="fu">&lt;&gt;</span> (a&#39; <span class="ot">`Also`</span> extra2) <span class="fu">=</span>
+    (a <span class="fu">&lt;&gt;</span> a&#39;)
+    <span class="ot">`Also`</span> (extra1 <span class="fu">&lt;&gt;</span> extra2)</code></pre></div><div class="container"><br></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">instance</span> (<span class="dt">Monoid</span> extraThing, <span class="dt">Monoid</span> a) <span class="ot">=&gt;</span>
+    <span class="dt">Monoid</span> ((<span class="dt">Also</span> extraThing) a) <span class="kw">where</span>
+
+  mempty <span class="fu">=</span> <span class="dt">Also</span> mempty mempty</code></pre></div><div class="container"><h2>Or-instead-other-thing</h2><p><b><code>OrInstead otherThing</code></b> is a functor in which, instead of having a value, can
+actually just have some totally unrelated <code>otherThing</code> instead.</p><p>When you combine stuff with <code>(&lt;*&gt;)</code> or <code>(&lt;&gt;)</code>, all of the values need to be
+present. If any of them are the <code>otherThing</code> instead, then the whole expression
+evaluates to the combination of the <code>otherThing</code>s.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">data</span> (<span class="dt">OrInstead</span> otherThing) a <span class="fu">=</span>
+
+  <span class="co">-- A normal value</span>
+  <span class="dt">NotInstead</span> a
+
+  <span class="co">-- Some totally unrelated other thing</span>
+  <span class="fu">|</span> <span class="dt">Instead</span> otherThing
+
+  <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Functor</span>, <span class="dt">Show</span>)</code></pre></div><div class="container"><p>The possibility of having an <code>otherThing</code> obstructs this functor’s ability
+to be applicative, much like the extra thing in <code>Also extraThing</code> does. In
+this case, since we do not need an empty value for the <code>otherThing</code>, it needs
+only a semigroup to be in compliance.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">instance</span> <span class="dt">Semigroup</span> otherThing <span class="ot">=&gt;</span>
+    <span class="dt">Applicative</span> (<span class="dt">OrInstead</span> otherThing) <span class="kw">where</span>
+
+  pure <span class="fu">=</span> <span class="dt">NotInstead</span>
+
+  <span class="dt">NotInstead</span> f <span class="fu">&lt;*&gt;</span> <span class="dt">NotInstead</span> a <span class="fu">=</span>
+    <span class="dt">NotInstead</span> (f a)
+  <span class="dt">Instead</span> other1 <span class="fu">&lt;*&gt;</span> <span class="dt">Instead</span> other2 <span class="fu">=</span>
+    <span class="dt">Instead</span> (other1 <span class="fu">&lt;&gt;</span> other2)
+  <span class="dt">Instead</span> other <span class="fu">&lt;*&gt;</span> _ <span class="fu">=</span> <span class="dt">Instead</span> other
+  _ <span class="fu">&lt;*&gt;</span> <span class="dt">Instead</span> other <span class="fu">=</span> <span class="dt">Instead</span> other</code></pre></div><div class="container"><br></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">instance</span> (<span class="dt">Semigroup</span> otherThing, <span class="dt">Semigroup</span> a) <span class="ot">=&gt;</span>
+    <span class="dt">Semigroup</span> ((<span class="dt">OrInstead</span> otherThing) a) <span class="kw">where</span>
+
+  <span class="dt">NotInstead</span> a <span class="fu">&lt;&gt;</span> <span class="dt">NotInstead</span> a&#39; <span class="fu">=</span>
+    <span class="dt">NotInstead</span> (a <span class="fu">&lt;&gt;</span> a&#39;)
+  <span class="dt">Instead</span> other1 <span class="fu">&lt;&gt;</span> <span class="dt">Instead</span> other2 <span class="fu">=</span>
+    <span class="dt">Instead</span> (other1 <span class="fu">&lt;&gt;</span> other2)
+  <span class="dt">Instead</span> other <span class="fu">&lt;&gt;</span> _ <span class="fu">=</span> <span class="dt">Instead</span> other
+  _ <span class="fu">&lt;&gt;</span> <span class="dt">Instead</span> other <span class="fu">=</span> <span class="dt">Instead</span> other</code></pre></div><div class="container"><br></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">instance</span> (<span class="dt">Semigroup</span> otherThing, <span class="dt">Monoid</span> a) <span class="ot">=&gt;</span>
+    <span class="dt">Monoid</span> ((<span class="dt">OrInstead</span> otherThing) a) <span class="kw">where</span>
+
+  mempty <span class="fu">=</span> <span class="dt">NotInstead</span> mempty</code></pre></div><div class="container"><h2>Or-instead-first-thing</h2><p><b><code>OrInsteadFirst otherThing</code></b> looks a lot like <code>OrInstead otherThing</code>, but it
+manages to always be an applicative functor — and even a monad too — by handling
+the <code>otherThing</code>s a bit more hamfistedly.</p><p>When you combine stuff with <code>(&lt;*&gt;)</code> or <code>(&lt;&gt;)</code>, all of the values need to
+be present. If any of them are the <code>otherThing</code> instead, then the whole
+expression evaluates to the <i>first</i> <code>otherThing</code> encountered, ignoring any
+additional <code>otherThing</code>s that may subsequently pop up.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">data</span> (<span class="dt">OrInsteadFirst</span> otherThing) a <span class="fu">=</span>
+
+  <span class="co">-- A normal value</span>
+  <span class="dt">NotInsteadFirst</span> a
+
+  <span class="co">-- Some totally unrelated other thing</span>
+  <span class="fu">|</span> <span class="dt">InsteadFirst</span> otherThing
+
+  <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Functor</span>, <span class="dt">Show</span>)</code></pre></div><div class="container"><br></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">instance</span> <span class="dt">Applicative</span> (<span class="dt">OrInsteadFirst</span> otherThing) <span class="kw">where</span>
+
+  pure <span class="fu">=</span> <span class="dt">NotInsteadFirst</span>
+
+  <span class="dt">NotInsteadFirst</span> f  <span class="fu">&lt;*&gt;</span> <span class="dt">NotInsteadFirst</span> a <span class="fu">=</span>
+    <span class="dt">NotInsteadFirst</span> (f a)
+  <span class="dt">InsteadFirst</span> other <span class="fu">&lt;*&gt;</span> _ <span class="fu">=</span> <span class="dt">InsteadFirst</span> other
+  _ <span class="fu">&lt;*&gt;</span> <span class="dt">InsteadFirst</span> other <span class="fu">=</span> <span class="dt">InsteadFirst</span> other</code></pre></div><div class="container"><br></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">instance</span> <span class="dt">Monad</span> (<span class="dt">OrInsteadFirst</span> otherThing) <span class="kw">where</span>
+
+  <span class="dt">InsteadFirst</span> other <span class="fu">&gt;&gt;=</span> _ <span class="fu">=</span> <span class="dt">InsteadFirst</span> other
+  <span class="dt">NotInsteadFirst</span> a  <span class="fu">&gt;&gt;=</span> f <span class="fu">=</span> f a</code></pre></div><div class="container"><br></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">instance</span> (<span class="dt">Semigroup</span> otherThing, <span class="dt">Semigroup</span> a) <span class="ot">=&gt;</span>
+    <span class="dt">Semigroup</span> ((<span class="dt">OrInsteadFirst</span> otherThing) a) <span class="kw">where</span>
+
+  <span class="dt">NotInsteadFirst</span> a <span class="fu">&lt;&gt;</span> <span class="dt">NotInsteadFirst</span> a&#39; <span class="fu">=</span>
+    <span class="dt">NotInsteadFirst</span> (a <span class="fu">&lt;&gt;</span> a&#39;)
+  <span class="dt">InsteadFirst</span> other <span class="fu">&lt;&gt;</span> _ <span class="fu">=</span> <span class="dt">InsteadFirst</span> other
+  _ <span class="fu">&lt;&gt;</span> <span class="dt">InsteadFirst</span> other <span class="fu">=</span> <span class="dt">InsteadFirst</span> other</code></pre></div><div class="container"><br></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">instance</span> (<span class="dt">Semigroup</span> otherThing, <span class="dt">Monoid</span> a) <span class="ot">=&gt;</span>
+    <span class="dt">Monoid</span> ((<span class="dt">OrInsteadFirst</span> otherThing) a) <span class="kw">where</span>
+
+  mempty <span class="fu">=</span> <span class="dt">NotInsteadFirst</span> mempty</code></pre></div><div class="container"><h2>Determined-by-parameter</h2><p><b><code>DeterminedBy parameter</code></b> is a value that… well, we’re not really sure what
+it is. We’ll find out once a <code>parameter</code> is provided.</p><p>The mechanism for deciding <i>how</i> the value is determined from the <code>parameter</code> is
+opaque; all you can do is test it with different parameters and see what
+results. There aren’t even <code>Eq</code> or <code>Show</code> instances, which is annoying.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">data</span> <span class="dt">DeterminedBy</span> parameter a <span class="fu">=</span>
+  <span class="dt">Determination</span> ((<span class="ot">-&gt;</span>) parameter a)
+  <span class="kw">deriving</span> <span class="dt">Functor</span></code></pre></div><div class="container"><br></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">instance</span> <span class="dt">Applicative</span> (<span class="dt">DeterminedBy</span> parameter) <span class="kw">where</span>
+
+  pure a <span class="fu">=</span> <span class="dt">Determination</span> (\_ <span class="ot">-&gt;</span> a)
+
+  <span class="dt">Determination</span> f <span class="fu">&lt;*&gt;</span> <span class="dt">Determination</span> a <span class="fu">=</span>
+    <span class="dt">Determination</span> (\x <span class="ot">-&gt;</span> f x (a x))</code></pre></div><div class="container"><br></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">instance</span> <span class="dt">Monad</span> (<span class="dt">DeterminedBy</span> parameter) <span class="kw">where</span>
+
+  <span class="dt">Determination</span> fa <span class="fu">&gt;&gt;=</span> ff <span class="fu">=</span>
+    <span class="dt">Determination</span> (\x <span class="ot">-&gt;</span>
+      <span class="kw">let</span> <span class="dt">Determination</span> f <span class="fu">=</span> ff (fa x)
+      <span class="kw">in</span>  f x)</code></pre></div><div class="container"><br></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">instance</span> <span class="dt">Semigroup</span> a <span class="ot">=&gt;</span>
+    <span class="dt">Semigroup</span> ((<span class="dt">DeterminedBy</span> parameter) a) <span class="kw">where</span>
+
+  <span class="dt">Determination</span> f <span class="fu">&lt;&gt;</span> <span class="dt">Determination</span> g <span class="fu">=</span>
+    <span class="dt">Determination</span> (\x <span class="ot">-&gt;</span> f x <span class="fu">&lt;&gt;</span> g x)</code></pre></div><div class="container"><br></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">instance</span> <span class="dt">Monoid</span> a <span class="ot">=&gt;</span>
+    <span class="dt">Monoid</span> ((<span class="dt">DeterminedBy</span> parameter) a) <span class="kw">where</span>
+
+  mempty <span class="fu">=</span> <span class="dt">Determination</span> (\_ <span class="ot">-&gt;</span> mempty)</code></pre></div><div class="container"><br><br><br><br><br><br><h2>Footnotes</h2><p><code>LiftedButWhy</code> is <code>Identity</code>.</p><p><code>OrNot</code> is <code>Maybe</code>, but with the monoid that is appropriate for its applicative.</p><p><code>Two</code> doesn’t have an analogue in any standard library as far as I know.</p><p><code>AnyNumberOf</code> is <code>ZipList</code>, with the appropriate semigroup added.</p><p><code>OneOrMore</code> is like <code>NonEmpty</code>, but with instances that match <code>ZipList</code>.</p><p><code>Also</code> is <code>(,)</code> — also known as the 2-tuple.</p><p><code>OrInstead</code> is <code>AccValidation</code> from the <i>validation</i> package.</p><p><code>OrInsteadFirst</code> is <code>Either</code>.</p><p><code>DeterminedBy</code> is <code>(-&gt;)</code>, also known as a <i>function</i>, whose monad is also known
+as <code>Reader</code>.</p><p>This text is also available on <a href="https://github.com/chris-martin/acme-functors">GitHub</a> and as <a href="https://hackage.haskell.org/package/acme-functors">acme-functors</a>
+on Hackage.</p></div></div></div></main><div class="post-footer container"><p>I write about Haskell and related topics; you can find my works online on <a href="http://typeclasses.com">Type Classes</a> and in print from <a href="http://joyofhaskell.com"><span style="text-decoration: italic;">The Joy of Haskell</span></a>.</p></div></body></html>

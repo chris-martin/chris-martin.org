@@ -1,0 +1,114 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Installing NixOS</title><link rel="icon" href=""><link href="https://fonts.googleapis.com/css?family=Inconsolata|Merriweather" rel="stylesheet"><link rel="stylesheet" type="text/css" href="../hash/6c5fa5ba994fef7c0511a51c94728475.css"><meta name="twitter:site:id" content="18271443"><meta name="twitter:title" content="Installing NixOS"></head><body><header class="global-page-header"><div class="container"><a href="..">Chris Martin</a></div></header><main><div><div class="post-head container"><h1 class="post-title">Installing NixOS</h1><div class="post-date">2015 September 27</div></div><div class="post-body"><div class="container"><p>I just installed NixOS on my laptop. This is a summary of my experience.</p><p>I hope you find it useful if you’re new to NixOS or setting up full disk
+encryption. Feel free to tweet questions at me and I’ll help if I can,
+though you’ll find more knowledgable folks in the <code>#nixos</code> channel on
+Freenode.</p><p>I keep my NixOS configuration in
+<a href="https://github.com/chris-martin/nixos-config">a git repository</a>.
+I recommend learning from other people’s configuration files and sharing
+your own.</p><p>Much of this follows Bluish Coder’s
+<a href="http://bluishcoder.co.nz/2014/05/14/installing-nixos-with-encrypted-root-on-thinkpad-w540.html">Installing NixOS on a ThinkPad W540 with encrypted root</a>
+and
+<a href="https://nixos.org/wiki/Encrypted_Root_on_NixOS">Encrypted Root on NixOS</a>
+on the NixOS wiki.</p><h2>My requirements, constraints, and choices</h2><ul><li>The hardware: Samsung Series 9 NP900X4C-A06US</li><li>Replacing the entire disk’s content, preserving nothing.</li><li>Must have encrypted root and swap.</li><li>Laptop has no CD drive, so must boot from USB.</li><li>Laptop has no ethernet port, so must use wifi (more specifically, WPA)
+during installation.</li><li>UEFI boot.</li></ul><h2>Preview</h2><p>Here’s what it’s going to look like once NixOS is installed.</p><h3>The boot loader</h3><p>Here’s what my boot loader looks like after I’ve been using this system
+for a couple weeks and have rebuilt the configuration 114 times.</p><div style="text-align: center;">
+  <img src="../hash/432da8b77c677d5f5264eb1c95d5e56c.jpg" style="max-width: 100%;"/>
+</div><h3>Unlocking the encrypted disk</h3><p>In the first stage of the boot process, NixOS stops to let you enter
+the passphrase before proceeding.</p><div style="text-align: center;">
+  <img src="../hash/a0affc030e9f0357f447e67b7ea96d66.jpg" style="max-width: 100%;"/>
+</div><h3>The default login prompt</h3><div style="text-align: center;">
+  <img src="../hash/33fef18a83a084dac1334f6560622b27.jpg" style="max-width: 100%;"/>
+</div><h2>Creating NixOS USB installer</h2><p>Download NixOS
+<a href="https://nixos.org/releases/nixos/15.09/nixos-15.09.336.83cc494/">15.09.336.83cc494</a>
+x86_64 minimal install ISO.</p><p><i>(I first tried the latest stable release, 14.12, and had an error
+installing Grub. I switched to this particular build of NixOS 15.09
+on
+<a href="https://twitter.com/iElectric/status/643359273012043776">Domen Kožar’s recommendation</a>.)</i></p><p>Load it onto a flash drive using unetbootin.</p><p><i>(I don’t know if there’s a better way to do this. Creating USB install
+media is still a huge mystery to me; I don’t get why it’s so complicated
+or why there’s seemingly no authoritative method.)</i></p><p>The volume label must be <code>NIXOS_ISO</code>:</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="fu">sudo</span> mlabel -i <span class="op">&lt;</span>device<span class="op">&gt;</span> -s ::<span class="st">&quot;NIXOS_ISO  &quot;</span></code></pre></div><div class="container"><p>Note the spaces that pad the label name to
+<a href="http://askubuntu.com/a/103695/333663">exactly 11 characters</a>.</p><p>Boot the NixOS live “CD.” It contains the utilities that you’ll need to
+set up the disk, and of course the NixOS installer.</p><h2>Disk layout</h2><p>Here’s a somewhat high-level depiction of the disk we’re about to set up.</p><div style="text-align: center; margin-top: 3em;">
+  <img src="../hash/3c916160d23ed1ccb28ec8fcc95d06e3.png" style="max-width: 100%;"/>
+</div><p>There are three partitions:</p><ul><li><code>/dev/sda1</code> is the BIOS boot partition. Don’t ask me exactly what this
+is for, all I know is it has to be there.</li><li><code>/dev/sda2</code> will be mounted at <code>/boot</code>. This is unencrypted,
+because the boot process will need it before we unlock the encrypted
+volume.</li><li><code>/dev/sda3</code> is the encrypted partition.</li></ul><p>The encrypted partition contains an LVM volume group called <code>vg</code>, which
+contains two logical volumes:</p><ul><li><code>/dev/vg/swap</code> will be used as swap space.</li><li><code>/dev/vg/root</code> will be mounted at the root of the filesystem, <code>/</code>.</li></ul><h3>Create partitions</h3><p>Run <code>fdisk -l</code> to show disks. Mine is <code>/dev/sda</code>.</p><p>Use <code>gdisk</code> to create the partitions.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="ex">gdisk</span> /dev/sda</code></pre></div><div class="container"><p>I won’t teach you how to use <code>gdisk</code> here, but create a partition table
+that looks like this:</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode">Number  Size        Code  Name
+  1     1000.0 KiB  EF02  BIOS boot partition
+  2     500.0 MiB   EF00  EFI System Partition
+  3     &lt;the rest&gt;  8E00  Linux LVM</code></pre></div><div class="container"><h3>Set up LUKS</h3><p>Initialize the encrypted partition. This will prompt you to create a
+passphrase (which can be changed later, so don’t fret if you haven’t
+generated a good one yet).</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="ex">cryptsetup</span> luksFormat /dev/sda3</code></pre></div><div class="container"><p>Then open it:</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="ex">cryptsetup</span> luksOpen /dev/sda3 enc-pv</code></pre></div><div class="container"><p>I have no idea what <code>enc-pv</code> means here, I’m just following instructions.</p><h3>Create LVM group and volumes</h3><p>This allocates 10G for swap, and the rest for the root volume.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="ex">pvcreate</span> /dev/mapper/enc-pv
+<span class="ex">vgcreate</span> vg /dev/mapper/enc-pv
+<span class="ex">lvcreate</span> -n swap vg -L 10G
+<span class="ex">lvcreate</span> -n root vg -l 100%FREE</code></pre></div><div class="container"><h3>Format partitions</h3></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="ex">mkfs.vfat</span> -n BOOT /dev/sda2
+<span class="ex">mkfs.ext4</span> -L root /dev/vg/root
+<span class="ex">mkswap</span> -L swap /dev/vg/swap</code></pre></div><div class="container"><h2>Installation</h2><h3>Mount</h3><p>Now mount all the disks and volumes you just created. But not where we
+said we were going to mount them.</p><p>The NixOS installer treats <code>/mnt</code> as the filesystem root for the installation.
+So instead of mounting to <code>/</code> and <code>/boot</code> as we discussed above, for now
+we’re going to mount them to <code>/mnt</code> and <code>/mnt/boot</code> instead:</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="fu">mount</span> /dev/vg/root /mnt
+<span class="fu">mkdir</span> /mnt/boot
+<span class="fu">mount</span> /dev/sda2 /mnt/boot</code></pre></div><div class="container"><p>Also activate the swap space:</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="ex">swapon</span> /dev/vg/swap</code></pre></div><div class="container"><h3>Configuration</h3><p>Run this to generate config files:</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="ex">nixos-generate-config</span> --root /mnt</code></pre></div><div class="container"><p>This creates two files in <code>/mnt/etc/nixos</code>:</p><ul><li><code>configuration.nix</code>, a default config file.
+(You’ll be making changes to this a lot).</li><li><code>hardware-configuration.nix</code>, the results of a hardware scan.
+(You don’t edit this.)</li></ul><p>Add this stuff to the <code>configuration.nix</code>:</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode">boot.initrd.luks.devices = [
+  {
+    name = &quot;root&quot;;
+    device = &quot;/dev/sda3&quot;;
+    preLVM = true;
+  }
+];
+
+boot.loader.grub.device = &quot;/dev/sda&quot;;
+
+networking.wireless.enable = true;</code></pre></div><div class="container"><p>Hopefully its meaning is mostly self-explanatory, as NixOS configuration
+tends to be.</p><h3>Wifi</h3><p>Disable the <code>wpa_supplicant</code> service that’s running, and run it yourself
+specifying the WPA credentials.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="ex">systemctl</span> stop wpa_supplicant.service
+<span class="ex">wpa_supplicant</span> -B -i interface -c <span class="op">&lt;(</span><span class="ex">wpa_passphrase</span> <span class="st">&#39;SSID&#39;</span> <span class="st">&#39;key&#39;</span><span class="op">)</span></code></pre></div><div class="container"><p>I’m not sure why, exactly, but that’s what
+<a href="https://nixos.org/wiki/Wpa_supplicant">the wiki</a>
+says to do.</p><h3>If you reboot during this process</h3><p>After you’ve created the partitions and LVM volumes, here’s a recap of
+everything you need to set up when you boot from the install media again.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="ex">cryptsetup</span> luksOpen /dev/sda3 enc-pv
+<span class="ex">lvchange</span> -a y /dev/vg/swap
+<span class="ex">lvchange</span> -a y /dev/vg/root
+<span class="fu">mount</span> /dev/vg/root /mnt
+<span class="fu">mount</span> /dev/sda2 /mnt/boot
+<span class="ex">swapon</span> /dev/vg/swap
+<span class="ex">systemctl</span> stop wpa_supplicant.service
+<span class="ex">wpa_supplicant</span> -B -i interface -c <span class="op">&lt;(</span><span class="ex">wpa_passphrase</span> <span class="st">&#39;SSID&#39;</span> <span class="st">&#39;key&#39;</span><span class="op">)</span></code></pre></div><div class="container"><h3>Install</h3></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="ex">nixos-install</span></code></pre></div><div class="container"><p>If that succeeds, then reboot and proceed to boot into your new NixOS install.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="ex">reboot</span></code></pre></div><div class="container"><h2>Your first NixOS boot</h2><p>At this point, there is now a ton of fun stuff to learn that is outside
+the scope of this walkthrough. I’m just going to cover the a little bit
+of essential configuration to get you started in a graphical environment.</p><h3>Connect to wifi again</h3><p>We’ll get a network manager set up soon, but for now run these commands
+again to get back on wifi.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="ex">systemctl</span> stop wpa_supplicant.service
+<span class="ex">wpa_supplicant</span> -B -i interface -c <span class="op">&lt;(</span><span class="ex">wpa_passphrase</span> <span class="st">&#39;SSID&#39;</span> <span class="st">&#39;key&#39;</span><span class="op">)</span></code></pre></div><div class="container"><h3>Add the 15.09 package channel</h3><p>In a root shell:</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="ex">nix-channel</span> --add http://nixos.org/channels/nixos-15.09
+<span class="ex">nix-channel</span> --update</code></pre></div><div class="container"><h3>Editing the config file</h3><p>You’ll be editing <code>/etc/nixos/configuration.nix</code> a lot.</p><p>When you do, run <code>nixos-rebuild switch</code> to apply the changes.</p><h3>Create a user</h3><p>Here’s my initial user config:</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode">users.extraUsers.chris = {
+  name = &quot;chris&quot;;
+  group = &quot;users&quot;;
+  extraGroups = [
+    &quot;wheel&quot; &quot;disk&quot; &quot;audio&quot; &quot;video&quot;
+    &quot;networkmanager&quot; &quot;systemd-journal&quot;
+  ];
+  createHome = true;
+  uid = 1000;
+  home = &quot;/home/chris&quot;;
+  shell = &quot;/run/current-system/sw/bin/bash&quot;;
+};</code></pre></div><div class="container"><p>Its password obviously doesn’t go in the config file, so
+you have to run this command to set it:</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="fu">passwd</span> chris</code></pre></div><div class="container"><h3>Enable graphical environment</h3><p>Add this config to enable KDE and the touchpad:</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode">services.xserver = {
+  enable = true;
+  desktopManager.kde4.enable = true;
+  synaptics.enable = true;
+};</code></pre></div><div class="container"><p><i>(I haven’t used KDE in a long time, but I decided on a whim to try it
+again—and I am delightfully surprised by how it has improved.)</i></p><h3>Enable network management</h3><p>Now you’ll want to turn on the network manager which can manage your
+WPA keys so you don’t have to keep manually messing with <code>wpa_supplicant</code>.</p><p>Replace</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode">networking.wireless.enable = true;</code></pre></div><div class="container"><p>with</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode">networking.networkmanager.enable = true;</code></pre></div><div class="container"><p>Also add <code>kde4.networkmanagement</code> to the package list to get a GUI for it.</p><h2>Reference documentation</h2><p>If you add this config:</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode">services.nixosManual.showManual = true;</code></pre></div><div class="container"><p>Then ctrl+alt+F8 gives you the manual in a terminal, which may be nice
+to keep around in case of emergency.</p><p><code>nixos-help</code> opens the manual in a browser window.</p><p><code>nixos-option</code> is a good reference for the configuration options.</p><p>To search for packages, use <code>nix-env -qaP | grep ...</code>.
+The left column shows attribute paths (which is what you need for
+<code>systemPackages</code> in the config), and the right column shows package names.</p><br/>
+<br/><blockquote>
+  <p lang="en" dir="ltr">
+    Blog post: Installing
+    <a href="https://twitter.com/hashtag/NixOS?src=hash">#NixOS</a>
+    with encrypted root
+    <a href="http://t.co/YSh1klCdvM">http://t.co/YSh1klCdvM</a>
+  </p>— Chris Martin (@chris__martin)
+  <a href="https://twitter.com/chris__martin/status/648070378795872257">
+    September 27, 2015
+  </a>
+</blockquote></div></div></div></main><div class="post-footer container"><p>I write about Haskell and related topics; you can find my works online on <a href="http://typeclasses.com">Type Classes</a> and in print from <a href="http://joyofhaskell.com"><span style="text-decoration: italic;">The Joy of Haskell</span></a>.</p></div></body></html>

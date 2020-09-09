@@ -1,0 +1,263 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Water Monoids</title><link rel="icon" href=""><link href="https://fonts.googleapis.com/css?family=Inconsolata|Merriweather" rel="stylesheet"><link rel="stylesheet" type="text/css" href="../hash/f6017e5f2c92d99cbae5801a371ff715.css"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://chris-martin.org/hash/94cdfd2a2ac15b17c058938576ce4149.png"><meta name="twitter:description" content="Solving that water-puddles problem,
+using as many monoids as possible."><meta name="twitter:site:id" content="18271443"><meta name="twitter:title" content="Water Monoids"></head><body><header class="global-page-header"><div class="container"><a href="..">Chris Martin</a></div></header><main><div><div class="post-head container"><h1 class="post-title">Water Monoids</h1><div class="post-date">2017 February 20</div></div><div class="post-body"><div class="container"><p>In the toy problem described by <a href="https://medium.com/@bearsandsharks/i-failed-a-twitter-interview-52062fbb534b"><i>I Failed a Twitter Interview</i></a>,
+we are given a list of integers</p><div style="text-align: center;">3, 2, 1, 4, 2</div><p>representing the heights of walls</p><table class="water unfilled">
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td class="wall"></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td class="wall"></td>
+    <td></td>
+    <td></td>
+    <td class="wall"></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td class="wall"></td>
+    <td class="wall"></td>
+    <td></td>
+    <td class="wall"></td>
+    <td class="wall"></td>
+  </tr>
+  <tr>
+    <td class="wall"></td>
+    <td class="wall"></td>
+    <td class="wall"></td>
+    <td class="wall"></td>
+    <td class="wall"></td>
+  </tr>
+  <tr>
+    <td>3</td>
+    <td>2</td>
+    <td>1</td>
+    <td>4</td>
+    <td>2</td>
+  </tr>
+</table><p>and we imagine pouring water onto this structure such that puddles accumulate in
+the gaps.</p><table class="water filled">
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td class="wall"></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td class="wall"></td>
+    <td class="water"></td>
+    <td class="water"></td>
+    <td class="wall"></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td class="wall"></td>
+    <td class="wall"></td>
+    <td class="water"></td>
+    <td class="wall"></td>
+    <td class="wall"></td>
+  </tr>
+  <tr>
+    <td class="wall"></td>
+    <td class="wall"></td>
+    <td class="wall"></td>
+    <td class="wall"></td>
+    <td class="wall"></td>
+  </tr>
+</table><p>We are then asked: How much water is held by the structure?
+(In the above example, the answer is 3).</p><h2>Monoids</h2><p>I find myself thinking about <a href="https://www.stackage.org/haddock/lts-8.0/base-4.9.1.0/Data-Monoid.html">monoids</a> a <i>lot</i> lately.
+Such a small, unassuming thing</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">class</span> <span class="dt">Monoid</span> a <span class="kw">where</span>
+
+<span class="ot">    mappend ::</span> a <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> a  <span class="co">-- An associative operation,</span>
+                            <span class="co">-- also called (&lt;&gt;)</span>
+
+<span class="ot">    mempty ::</span> a             <span class="co">-- Identity of (&lt;&gt;)</span></code></pre></div><div class="container"><p>yet it stirs the imagination. If your type has a monoid, you can chain the
+elements of any collection together into a single element.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="ot">fold ::</span> (<span class="dt">Foldable</span> t, <span class="dt">Monoid</span> m) <span class="ot">=&gt;</span> t m <span class="ot">-&gt;</span> m</code></pre></div><div class="container"><p>The obvious examples may be data structures like strings, which are chained
+together by concatenation.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode">x <span class="fu">=</span> fold [ <span class="st">&quot;one&quot;</span>
+         , <span class="st">&quot;two&quot;</span>
+         , <span class="st">&quot;three&quot;</span>
+         ]
+<span class="co">-- x = &quot;one&quot; &lt;&gt; &quot;two&quot; &lt;&gt; &quot;three&quot;</span>
+<span class="co">--   = &quot;one&quot; ++ &quot;two&quot; ++ &quot;three&quot;</span>
+<span class="co">--   = &quot;onetwothree&quot;</span></code></pre></div><div class="container"><p>But a monoid operations aren’t just ways to merge data structures. My favorite
+example is <a href="https://www.stackage.org/haddock/lts-8.0/base-4.9.1.0/Data-Monoid.html#t:Endo"><code>Endo</code></a>, which lets you chain together collections of
+functions.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">newtype</span> <span class="dt">Endo</span> a <span class="fu">=</span> <span class="dt">Endo</span> {<span class="ot"> appEndo ::</span> a <span class="ot">-&gt;</span> a }
+
+<span class="kw">instance</span> <span class="dt">Monoid</span> (<span class="dt">Endo</span> a) <span class="kw">where</span>
+    mempty <span class="fu">=</span> <span class="dt">Endo</span> id
+    <span class="dt">Endo</span> f <span class="ot">`mappend`</span> <span class="dt">Endo</span> g <span class="fu">=</span> <span class="dt">Endo</span> (f <span class="fu">.</span> g)
+
+f <span class="fu">=</span> fold [ <span class="dt">Endo</span> (<span class="fu">+</span> <span class="dv">3</span>)
+         , <span class="dt">Endo</span> (<span class="ot">`div`</span> <span class="dv">2</span>)
+         , <span class="dt">Endo</span> (<span class="fu">+</span> <span class="dv">10</span>)
+         ]
+<span class="co">-- appEndo f 0</span>
+<span class="co">--    = appEndo (Endo (+ 3) &lt;&gt; Endo (`div` 2) &lt;&gt; Endo (+ 10)) 0</span>
+<span class="co">--    = ((+ 3) . (`div` 2) . (+ 10)) 0</span>
+<span class="co">--    = 8</span></code></pre></div><div class="container"><p>Monoids compose extraordinarily readily.
+For example, if <code>a</code> and <code>b</code> have monoids, then the tuple <code>(a, b)</code> does as well.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">instance</span> (<span class="dt">Monoid</span> a, <span class="dt">Monoid</span> b) <span class="ot">=&gt;</span> <span class="dt">Monoid</span> (a, b) <span class="kw">where</span>
+    mempty <span class="fu">=</span> (mempty, mempty)
+    (a1, b1) <span class="ot">`mappend`</span> (a2, b2) <span class="fu">=</span> (a1 <span class="fu">&lt;&gt;</span> a2, b1 <span class="fu">&lt;&gt;</span> b2)</code></pre></div><div class="container"><h2>The water monoid</h2><p>I woke up one morning recently with the thought that we can define a monoid for
+these water-filled structures. When we place two of them side-by-side, they
+combine like this:</p><div class="water-monoid"><img src="../hash/65882f9968a7f2a11dc2a51fc3bf0c2a.png"></div><p>A structure is represented by</p><ol>
+  <li>
+    <p>What its outer shape looks like</p>
+    <ol>
+      <li>From the left, and
+      <li>From the right.
+    </ol>
+    <p>I call these its “faces”. Imagine the structure were as tall as you, and
+    you were standing to the left or right of it; the face is comprised of the
+    corners that are visible to you from that perspective.</p>
+  <li>The amount of water it holds.
+</ol></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">data</span> <span class="dt">Structure</span> <span class="fu">=</span> <span class="dt">Structure</span>
+    {<span class="ot"> sLeft  ::</span> <span class="dt">LeftFace</span>   <span class="co">-- 1. The outer shape</span>
+    ,<span class="ot"> sRight ::</span> <span class="dt">RightFace</span>
+    ,<span class="ot"> sArea  ::</span> <span class="dt">Area</span>       <span class="co">-- 2. How much water it holds</span>
+    }</code></pre></div><div class="container"><p>When filled with water, the structure is convex, so the left and right faces
+provide all the information we need to figure out what shape will result when
+we combine two structures.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">instance</span> <span class="dt">Monoid</span> <span class="dt">Structure</span> <span class="kw">where</span>
+
+    mempty <span class="fu">=</span> <span class="dt">Structure</span> mempty mempty mempty
+
+    mappend (<span class="dt">Structure</span> left right water)
+            (<span class="dt">Structure</span> left&#39; right&#39; water&#39;) <span class="fu">=</span>
+        <span class="dt">Structure</span> (left <span class="fu">&lt;&gt;</span> left&#39;)
+                  (right <span class="fu">&lt;&gt;</span> right&#39;)
+                  (water <span class="fu">&lt;&gt;</span> water&#39; <span class="fu">&lt;&gt;</span> waterBetween right left&#39;)</code></pre></div><div class="container"><p>Not only does <code>Structure</code> have a monoid, but so do all of its fields; so
+<code>mempty</code> is defined quite simply as <code>Structure mempty mempty mempty</code>. The
+definition of <code>mappend</code> is similarly straightforward, with the exception that we
+also have to add in <code>waterBetween right left&#39;</code> to include the water that puddles
+in the new gap between the two structures.</p><h2>Arithmetic</h2><p>Since there are no negative numbers in this problem, we’ll be using the
+<code>Natural</code> type, which represents nonnegative integers.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">import </span><span class="dt">Numeric.Natural</span> (<span class="dt">Natural</span>)</code></pre></div><div class="container"><p>The arithmetic in Haskell’s default prelude is a bit clumsy, so you want to be
+precise, it can be nice to define your own. For example, <code>Natural</code> has an
+instance of <code>Num</code>, which can get us into trouble because <code>(-)</code> is partial.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode">λ<span class="fu">&gt;</span> <span class="dv">1</span> <span class="fu">-</span> <span class="dv">2</span><span class="ot"> ::</span> <span class="dt">Natural</span>
+<span class="fu">***</span> <span class="dt">Exception</span><span class="fu">:</span> arithmetic underflow</code></pre></div><div class="container"><p>For the <code>Natural</code> type, I’d prefer to have the <code>(-)</code> function signify <i>absolute
+difference</i>. Fortunately we can define our own subtraction class and implement
+it however we want.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">class</span> <span class="dt">Subtraction</span> a <span class="kw">where</span>
+<span class="ot">    (-) ::</span> a <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> a
+    <span class="kw">infixl</span> <span class="dv">6</span> <span class="fu">-</span>
+
+<span class="kw">instance</span> <span class="dt">Subtraction</span> <span class="dt">Natural</span> <span class="kw">where</span>
+    a <span class="fu">-</span> b <span class="fu">|</span> a <span class="fu">&gt;=</span> b    <span class="fu">=</span> a <span class="fu">Prelude.-</span> b
+          <span class="fu">|</span> otherwise <span class="fu">=</span> b <span class="fu">Prelude.-</span> a
+
+<span class="kw">instance</span> <span class="dt">Subtraction</span> a <span class="ot">=&gt;</span> <span class="dt">Subtraction</span> (<span class="dt">Sum</span> a) <span class="kw">where</span>
+    <span class="dt">Sum</span> a <span class="fu">-</span> <span class="dt">Sum</span> b <span class="fu">=</span> <span class="dt">Sum</span> (a <span class="fu">-</span> b)</code></pre></div><div class="container"><p>Not all numbers are the same, so let’s also define some types to assign meaning
+to the specific sorts of quantities we’re dealing with in this problem.</p><p>We wrap the numbers in <code>Sum</code> so that we can automatically derive monoid
+instances that combine additively.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="ot">{-# LANGUAGE GeneralizedNewtypeDeriving #-}</span>
+
+<span class="kw">newtype</span> <span class="dt">Width</span> <span class="fu">=</span> <span class="dt">Width</span> (<span class="dt">Sum</span> <span class="dt">Natural</span>)
+    <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Monoid</span>, <span class="dt">Ord</span>, <span class="dt">Semigroup</span>, <span class="dt">Subtraction</span>)
+
+<span class="kw">newtype</span> <span class="dt">Height</span> <span class="fu">=</span> <span class="dt">Height</span> (<span class="dt">Sum</span> <span class="dt">Natural</span>)
+    <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Monoid</span>, <span class="dt">Ord</span>, <span class="dt">Semigroup</span>, <span class="dt">Subtraction</span>)
+
+<span class="kw">newtype</span> <span class="dt">Area</span> <span class="fu">=</span> <span class="dt">Area</span> (<span class="dt">Sum</span> <span class="dt">Natural</span>)
+    <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Monoid</span>, <span class="dt">Ord</span>, <span class="dt">Semigroup</span>, <span class="dt">Subtraction</span>)</code></pre></div><div class="container"><p>We’ll need to multiply a <code>Width</code> by a <code>Height</code> to get an <code>Area</code>. Here we run
+into another limitation of <code>Num</code>: It assume we’re only multiplying values of the
+same type.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="ot">(*) ::</span> <span class="dt">Num</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> a</code></pre></div><div class="container"><p>So again let’s ignore the standard math and invent our own. Since this
+hetereogeneous multiplication involves more than one type, we need the language
+extension that allows multi-parameter type classes.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="ot">{-# LANGUAGE MultiParamTypeClasses #-}</span>
+
+<span class="kw">class</span> <span class="dt">Multiplication</span> a b c <span class="kw">where</span>
+<span class="ot">    (*) ::</span> a <span class="ot">-&gt;</span> b <span class="ot">-&gt;</span> c
+    <span class="kw">infixl</span> <span class="dv">7</span> <span class="fu">*</span>
+
+<span class="kw">instance</span> <span class="dt">Multiplication</span> <span class="dt">Width</span> <span class="dt">Height</span> <span class="dt">Area</span> <span class="kw">where</span>
+    <span class="dt">Width</span> w <span class="fu">*</span> <span class="dt">Height</span> h <span class="fu">=</span> <span class="dt">Area</span> (w <span class="fu">Prelude.*</span> h)
+
+<span class="kw">instance</span> <span class="dt">Multiplication</span> <span class="dt">Height</span> <span class="dt">Width</span> <span class="dt">Area</span> <span class="kw">where</span>
+    <span class="dt">Height</span> h <span class="fu">*</span> <span class="dt">Width</span> w <span class="fu">=</span> <span class="dt">Area</span> (w <span class="fu">Prelude.*</span> h)</code></pre></div><div class="container"><h2>Faces</h2><p>Recall that we defined a structure’s shape in terms of its <code>LeftFace</code> and its
+<code>RightFace</code>. Now we’ll define those types and their monoids.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">import </span><span class="dt">Data.Map</span> (<span class="dt">Map</span>)
+<span class="kw">import qualified</span> <span class="dt">Data.Map</span> <span class="kw">as</span> <span class="dt">Map</span>
+
+<span class="kw">type</span> <span class="dt">Corners</span> <span class="fu">=</span> <span class="dt">Map</span> <span class="dt">Height</span> <span class="dt">Width</span>
+
+<span class="kw">newtype</span> <span class="dt">LeftFace</span> <span class="fu">=</span> <span class="dt">LeftFace</span> <span class="dt">Corners</span>
+
+<span class="kw">newtype</span> <span class="dt">RightFace</span> <span class="fu">=</span> <span class="dt">RightFace</span> <span class="dt">Corners</span>
+
+<span class="kw">instance</span> <span class="dt">Monoid</span> <span class="dt">LeftFace</span> <span class="kw">where</span>
+    mempty <span class="fu">=</span> emptyFace
+    mappend near far <span class="fu">=</span> overlapFaces near far
+
+<span class="kw">instance</span> <span class="dt">Monoid</span> <span class="dt">RightFace</span> <span class="kw">where</span>
+    mempty <span class="fu">=</span> emptyFace
+    mappend far near <span class="fu">=</span> overlapFaces near far</code></pre></div><div class="container"><p>Notice the subtle difference between how <code>mappend</code> is defined for each of these
+types. When we combine two faces, it matters whether we’re looking at them from
+the left or from the right.</p><p>This is what combining two left faces looks like:</p><div class="water-monoid"><img src="../hash/8005a11f11c7b9c8b27b1c45ac958e45.png"></div><p>The <code>emptyFace</code> and <code>overlapFaces</code> functions need to be polymorphic so we can
+use them for both the left or right face types. To make this easy, we can take
+advantage of the <a href="https://www.stackage.org/haddock/lts-8.1/base-4.9.1.0/Data-Coerce.html"><code>Coercible</code></a> instances that newtypes get
+automatically, and define a <code>Face</code> as anything which can be converted back and
+forth to <code>Corners</code>.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="ot">{-# LANGUAGE ConstraintKinds, FlexibleContexts #-}</span>
+
+<span class="kw">import </span><span class="dt">Data.Coerce</span> (<span class="dt">Coercible</span>, coerce)
+
+<span class="kw">type</span> <span class="dt">Face</span> a <span class="fu">=</span> (<span class="dt">Coercible</span> <span class="dt">Corners</span> a, <span class="dt">Coercible</span> a <span class="dt">Corners</span>)</code></pre></div><div class="container"><p>Now we can generically implement the face-combining logic, using <code>coerce</code> to
+convert <code>Corners</code> to <code>Face</code> and vice versa.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="ot">emptyFace ::</span> <span class="dt">Face</span> a <span class="ot">=&gt;</span> a
+emptyFace <span class="fu">=</span> coerce (Map.empty<span class="ot"> ::</span> <span class="dt">Corners</span>)
+
+<span class="ot">overlapFaces ::</span> <span class="dt">Face</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> a
+overlapFaces nearFace farFace <span class="fu">=</span> coerce (<span class="ot">corners ::</span> <span class="dt">Corners</span>)
+  <span class="kw">where</span>
+    near <span class="fu">=</span> coerce<span class="ot"> nearFace ::</span> <span class="dt">Corners</span>
+    far  <span class="fu">=</span> coerce<span class="ot"> farFace  ::</span> <span class="dt">Corners</span>
+    (nearHeight, nearWidth) <span class="fu">=</span> faceSize near
+    far&#39; <span class="fu">=</span> (<span class="fu">&lt;&gt;</span> nearWidth <span class="fu">&lt;&gt;</span> <span class="dt">Width</span> <span class="dv">1</span>) <span class="fu">&lt;$&gt;</span> snd (Map.split nearHeight far)
+    corners <span class="fu">=</span> near <span class="fu">&lt;&gt;</span> far&#39;
+
+<span class="ot">faceSize ::</span> <span class="dt">Face</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> (<span class="dt">Height</span>, <span class="dt">Width</span>)
+faceSize face <span class="fu">=</span> <span class="kw">let</span> corners <span class="fu">=</span> coerce<span class="ot"> face ::</span> <span class="dt">Corners</span>
+                <span class="kw">in</span>  <span class="kw">if</span> null corners
+                        <span class="kw">then</span> mempty
+                        <span class="kw">else</span> Map.findMax corners</code></pre></div><div class="container"><h2>Water between two structures</h2><p>The last nontrivial bit of coding is to compute the area of water between two
+opposing faces. Notice that the entire thing is a <code>fold</code>, and that here is where
+we use the <code>(*)</code> and <code>(-)</code> functions defined above.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="ot">waterBetween ::</span> <span class="dt">RightFace</span> <span class="ot">-&gt;</span> <span class="dt">LeftFace</span> <span class="ot">-&gt;</span> <span class="dt">Area</span>
+waterBetween face face&#39; <span class="fu">=</span>
+    fold <span class="fu">$</span> go (Map.toAscList (coerce<span class="ot"> face ::</span> <span class="dt">Corners</span>))
+              (Map.toAscList (coerce<span class="ot"> face&#39; ::</span> <span class="dt">Corners</span>))
+              mempty
+  <span class="kw">where</span>
+<span class="ot">    go ::</span> [(<span class="dt">Height</span>, <span class="dt">Width</span>)]
+       <span class="ot">-&gt;</span> [(<span class="dt">Height</span>, <span class="dt">Width</span>)]
+       <span class="ot">-&gt;</span> <span class="dt">Height</span>
+       <span class="ot">-&gt;</span> [<span class="dt">Area</span>]
+    go l<span class="fu">@</span>((heightL, depthL) <span class="fu">:</span> restL)
+       r<span class="fu">@</span>((heightR, depthR) <span class="fu">:</span> restR)
+       floor <span class="fu">=</span>
+
+        <span class="kw">let</span> area   <span class="fu">=</span> raised <span class="fu">*</span> width
+            raised <span class="fu">=</span> floor&#39; <span class="fu">-</span> floor
+            width  <span class="fu">=</span> depthL <span class="fu">&lt;&gt;</span> depthR
+
+            (floor&#39;, l&#39;, r&#39;) <span class="fu">=</span>
+                <span class="kw">case</span> compare heightL heightR <span class="kw">of</span>
+                    <span class="dt">LT</span> <span class="ot">-&gt;</span> (heightL, restL, r    )
+                    <span class="dt">GT</span> <span class="ot">-&gt;</span> (heightR, l,     restR)
+                    <span class="dt">EQ</span> <span class="ot">-&gt;</span> (heightL, restL, restR)
+
+        <span class="kw">in</span>  area <span class="fu">:</span> go l&#39; r&#39; floor&#39;
+
+    go _ _ _ <span class="fu">=</span> []</code></pre></div><div class="container"><h2>Folding it all together</h2><p>We then define the construction of a structure with a single wall…</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="ot">structureSingleton ::</span> <span class="dt">Height</span> <span class="ot">-&gt;</span> <span class="dt">Structure</span>
+structureSingleton height <span class="fu">=</span> <span class="dt">Structure</span> face face mempty
+  <span class="kw">where</span>
+<span class="ot">    face ::</span> <span class="dt">Face</span> a <span class="ot">=&gt;</span> a
+    face <span class="fu">=</span> coerce (Map.singleton height<span class="ot"> mempty ::</span> <span class="dt">Corners</span>)</code></pre></div><div class="container"><p>And finally, chain all the walls together, using another fold!</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="ot">collectWater ::</span> [<span class="dt">Natural</span>] <span class="ot">-&gt;</span> <span class="dt">Natural</span>
+collectWater <span class="fu">=</span> coerce <span class="fu">.</span> sArea <span class="fu">.</span> foldMap (structureSingleton <span class="fu">.</span> coerce)</code></pre></div><div class="container"><h2>Notes</h2><p>You can see the complete working code on <a href="https://github.com/chris-martin/rain-water/">GitHub</a>.</p><p>In this post I don’t give much thought to efficiency; I haven’t bothered to
+benchmark this code, and I suspect its runtime may be quadratic.</p><p>In case you are wondering <i>Does it really take this much code to write a Haskell
+program?</i> — No; what I’ve done here is overkill, just for fun and
+learning.</p><p>If you are interested in optimization or brevity, check out
+<a href="http://chrisdone.com/posts/twitter-problem-loeb">Chris Done’s</a> work on the subject, which includes a very nice
+concise solution in Haskell using scans.</p><p>To simplify explanation, I avoided mentioning <a href="https://www.stackage.org/haddock/lts-8.0/base-4.9.1.0/Data-Semigroup.html"><code>Semigroup</code></a>, but it
+is something you should be aware of. Semigroup complicates things because in
+Haskell it has some historical baggage. Ideally the two classes would look like
+this:</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">class</span> <span class="dt">Semigroup</span> a <span class="kw">where</span>
+<span class="ot">    (&lt;&gt;) ::</span> a <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> a
+
+<span class="kw">class</span> <span class="dt">Semigroup</span> a <span class="ot">=&gt;</span> <span class="dt">Monoid</span> a <span class="kw">where</span>
+<span class="ot">    mempty ::</span> a</code></pre></div><div class="container"><p>However, because semigroups were added to Haskell after monoids, <code>Monoid</code> does
+not have this constraint, and it has a <code>mappend</code> method which is redundant to <code>(&lt;&gt;)</code>.</p></div></div></div></main><div class="post-footer container"><p>I write about Haskell and related topics; you can find my works online on <a href="http://typeclasses.com">Type Classes</a> and in print from <a href="http://joyofhaskell.com"><span style="text-decoration: italic;">The Joy of Haskell</span></a>.</p></div></body></html>

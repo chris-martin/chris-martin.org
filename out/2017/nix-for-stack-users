@@ -1,0 +1,40 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Introduction to Nix (for users of Stack)</title><link rel="icon" href=""><link href="https://fonts.googleapis.com/css?family=Inconsolata|Merriweather" rel="stylesheet"><link rel="stylesheet" type="text/css" href="../hash/bbdb3309c85cc05af4572bd7e5eeb723.css"><meta name="twitter:site:id" content="18271443"><meta name="twitter:title" content="Introduction to Nix (for users of Stack)"></head><body><header class="global-page-header"><div class="container"><a href="..">Chris Martin</a></div></header><main><div><div class="post-head container"><h1 class="post-title">Introduction to Nix (for users of Stack)</h1><div class="post-date">2017 February 24</div></div><div class="post-body"><div class="container"><h2>Install Nix</h2></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="ex">curl</span> https://nixos.org/nix/install <span class="kw">|</span> <span class="fu">sh</span>
+<span class="bu">source</span> ~/.nix-profile/etc/profile.d/nix.sh</code></pre></div><div class="container"><p>It can live happily in any Linux system.</p><h2>Nix is like Stack</h2><p>Think of <a href="https://nixos.org/nix/">Nix</a> like <a href="https://docs.haskellstack.org/en/stable/README/">Stack</a>, but with a much broader scope.</p><p>Stack is there to manage your project’s dependencies, and help you run their
+programs and compile stuff with them, but only if the dependencies are Haskell
+packages.</p><p>Nix dependencies can be… kinda any software at all.</p><p>Nix and Stack work together nicely. When you enable <a href="https://github.com/commercialhaskell/stack/blob/master/doc/nix_integration.md">Nix integration for
+Stack</a>, you can add any software as a dependency of your Stack
+project.</p><p>So if you want to, for example, add a <a href="http://sass-lang.com/">SASS</a> compilation step to your
+<a href="https://jaspervdj.be/hakyll/">Hakyll</a> project, your coworkers don’t have to do any work to get the
+SASS compiler. Stack will just install it for them.</p><p>Like Stack keeps a cache of all the stuff it has installed in <code>~/.stack</code> in your
+home directory, Nix keeps all of its stuff in <code>/nix/store</code>. (It’s not in your
+home directory, but at the root of the filesystem — for <i>technical reasons</i> —
+which is why you are prompted to sudo when you install it.)</p><h2><code>nix-shell</code> is like <code>stack exec</code></h2><p>Another comparison between Stack and Nix: You know how you can use Stack
+(outside the context of any project) to run executables from Haskell packages?</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode">&gt; stack exec --package pandoc -- pandoc --version
+pandoc 1.19.2.1</code></pre></div><div class="container"><p><code>nix-shell</code> is like <code>stack exec</code>.</p><p>So take for example… Let’s assume you don’t have NPM installed. And let’s say
+you don’t really want to install it permanently or whatever because you’re
+probably not going to need it again, but you just want to run it for some
+one-off command.</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode">&gt; nix-shell -p nodePackages.npm --run &#39;npm --version&#39;
+4.1.1</code></pre></div><div class="container"><p><code>-p npm</code> is like <code>--package pandoc</code>; it tells Nix what packages you want
+available in the sandbox you’re going to run a command in. And then <code>npm
+--version</code> is the command you want to run. So that’ll download NPM and run <code>npm
+--version</code>, without actually “installing” NPM — without modifying your system
+visibly at all.</p><h2><code>shell.nix</code> is like <code>stack.yaml</code></h2><p>So then, also like Stack, you can use it in a sort of standalone manner like
+that, or you can have a config file for a project. Here’s one I’m using right
+now:</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="kw">{</span> <span class="ex">pkgs</span> ? import <span class="op">&lt;</span>nixpkgs<span class="op">&gt;</span> <span class="dt">{}</span>, ghc ? pkgs.ghc <span class="kw">}</span>:
+
+<span class="ex">pkgs.haskell.lib.buildStackProject</span> {
+  <span class="ex">name</span> = <span class="st">&quot;joyofhaskell.com&quot;</span><span class="kw">;</span>
+  <span class="ex">inherit</span> ghc<span class="kw">;</span>
+  <span class="ex">buildInputs</span> = with pkgs<span class="kw">;</span><span class="bu"> [</span> sassc zlib<span class="bu"> ]</span>;
+  <span class="ex">LANG</span> = <span class="st">&quot;en_US.UTF-8&quot;</span><span class="kw">;</span>
+  <span class="ex">TMPDIR</span> = <span class="st">&quot;/tmp&quot;</span><span class="kw">;</span>
+}</code></pre></div><div class="container"><p>This file is called <code>shell.nix</code> and it sits in the root of a Hakyll project
+repository alongside <code>stack.yaml</code>.</p><p>The most important line here is the one with our dependencies:</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="ex">buildInputs</span> = with pkgs<span class="kw">;</span><span class="bu"> [</span> sassc zlib<span class="bu"> ]</span>;</code></pre></div><div class="container"><p>And then at the end of our <code>stack.yaml</code> is</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="fu">nix:</span>
+  <span class="fu">enable:</span> true
+  <span class="fu">pure:</span> true
+  <span class="fu">shell-file:</span> shell.nix</code></pre></div><div class="container"><p>which tells Stack to do everything that it does in the context of that Nix
+configuration, which it does by using <code>nix-shell</code> under the hood.</p><h2><code>nix-env</code> is like <code>apt-get</code></h2><p>You can also use Nix as an alternative to Ubuntu’s package manager (<code>apt-get</code>)
+for a lot of things if you so choose. (I’m assuming you’re using Ubuntu.)</p><p>For this we use another command, <code>nix-env</code>.</p><p>The basic usage <code>of nix-env</code> is:</p><ul><li><code>nix-env -i npm</code> — to install (e.g. NPM)</li><li><code>nix-env -e npm</code> — to uninstall</li><li><code>nix-env -q</code> — to list which package you have installed</li></ul><p>You have no pressing need to use <code>nix-env</code> instead of your existing package
+manager at the moment, but it will be important if you ever use <a href="https://nixos.org/">NixOS</a>.</p><p>An interesting difference between <code>nix-env</code> and <code>apt-get</code> is that it only
+affects your user, which is why you don’t have to sudo to run it.</p></div></div></div></main><div class="post-footer container"><p>I write about Haskell and related topics; you can find my works online on <a href="http://typeclasses.com">Type Classes</a> and in print from <a href="http://joyofhaskell.com"><span style="text-decoration: italic;">The Joy of Haskell</span></a>.</p></div></body></html>

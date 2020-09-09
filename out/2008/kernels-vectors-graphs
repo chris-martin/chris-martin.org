@@ -1,0 +1,21 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Kernel, vectors, graphs</title><link rel="icon" href=""><link href="https://fonts.googleapis.com/css?family=Inconsolata|Merriweather" rel="stylesheet"><link rel="stylesheet" type="text/css" href="../hash/bbdb3309c85cc05af4572bd7e5eeb723.css"><meta name="twitter:site:id" content="18271443"><meta name="twitter:title" content="Kernel, vectors, graphs"></head><body><header class="global-page-header"><div class="container"><a href="..">Chris Martin</a></div></header><main><div><div class="post-head container"><h1 class="post-title">Kernel, vectors, graphs</h1><div class="post-date">2008 September 19</div></div><div class="post-body"><div class="container"><p>It occurred to me that this OS Design course has put me past a certain point of
+no return in life. The first assignment was to make a Linux kernel module to
+add a simple /proc entry. And the moment I compiled the kernel source... I
+became <i>one of those guys</i> who has compiled the Linux kernel. This is not the
+sort of thing that you can undo.</p><p>I think it’s awesome.</p><p>This is shaping up to be my favorite semester. All good professors, mostly all
+good classes. The maths are nice - Since I’ve been at Tech, I haven’t actually
+taken very much math. Calc 2, 3, and Combinatorics are the big ones. I’m
+currently taking AVS and Graph Theory. None of it is conceptually new to me,
+but it’s proof-heavy and more in-depth, and stuff is making a lot more sense
+the second time around.</p><p>I’m convinced that an essential part of learning maths is to be exposed to
+higher-level concepts you may not understand yet. Some teachers seem to have
+this fear that mentioning a new, unknown word will startle students enough to
+send them running away in a terrified confusion. So we hide the majority of
+mathematical concepts in the dark as if ashamed of them. Just as my first grade
+class denied the existence of numbers less than zero, high school refused to
+acknowledge the existence of a vector space of dimension greater than two (or
+perhaps three). We did algebra “exercises” in field of real numbers, but never
+once heard the word “field.” Sometimes an equation’s solution is a set, but we
+didn’t even have a well-defined notion of “set.” The mere mention of things you
+don’t fully understand can be enough to begin to see the bigger picture.</p></div></div></div></main><div class="post-footer container"><p>I write about Haskell and related topics; you can find my works online on <a href="http://typeclasses.com">Type Classes</a> and in print from <a href="http://joyofhaskell.com"><span style="text-decoration: italic;">The Joy of Haskell</span></a>.</p></div></body></html>
