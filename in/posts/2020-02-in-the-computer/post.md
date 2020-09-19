@@ -1,20 +1,18 @@
 --------------------------------------------------------------------------------
 title:    In the computer
-date:     2020 Sep 9
+date:     2020 Sep 19
 slug:     in-the-computer
 abstract: The files are *in* the computer. It's so simple.
 --------------------------------------------------------------------------------
 
 When people talk about "algebraic reasoning", explanations fall flat because we neglect to first figure out kind of reasoning we're contrasting it against. When we write computer code using an operational model, we do *think about* what we write -- so what manner of reasoning are we using? Can we give it a name? And can we explain why it seems so incompatible with the sort of reasoning that Lambda Man is always going on about?
 
-## Metaphors we code by
-
-I propose that the culture of programming at present may be divided into two approaches, explained by the following competing metaphors for the act of programming:
+I propose that the culture of programming at present may be divided into two approaches, explained by the following competing conceptions of the act of programming:
 
   1. An operational programmer *goes into* the computer;
   2. An algebraic programmer remains *outside* the computer.
 
-I want to be careful to avoid conflating this with the orientational metaphor *concrete is down, abstract is up*. Our understanding of concrete/abstract being structured from the physical basis of down/up is why we may describe a C programmer as "close to the metal" and an Idris programmer as a "type astronaut". But I am *not* talking about one coherent conceptual metaphor. *Programming inside* and *programming outside* are two different -- and conflicting -- metaphors. And many of us become entrenched in one or the other.
+We all have some need to shift between the two perspectives, but many of us become more entrenched in one or the other.
 
 ## Who calls the calls
 
@@ -36,9 +34,9 @@ In either variety of programming, we sometimes put ourselves in the shoes of the
 
 ## Removing the lime from the coconut
 
-When an experienced inside-the-computer author begins in a programming languages that forces us to approach programs from the outside, we can expect the question: If "I have an `IO String`", then "how do I get to the `String`"?
+When an experienced inside-the-computer author begins in a programming language that forces us to approach programs from the outside, we can expect the question: If "I have an `IO String`", then "how do I get to the `String`"?
 
-While others have already addressed this question in detail, what I want to draw attention to here is that the misunderstanding originates from trying to apply the *inside* conceptual mapping to a programming model that is strongly *outside*. An `IO String` is a process that produces a `String` result. So if I *were* standing inside a Haskell program, holding such a thing in my hands, it stands to reason that I could run the process and get the string. But we do not *have* such values because we do not *go* inside to *get* anything. We remain at the text editor, writing definitions. One such definition might be for a process which consists of 1. first running some `IO String` process; and then 2. doing some other action with the resulting string.
+While others have already addressed this question in detail, what I want to draw attention to here is that the misunderstanding originates from trying to apply the *inside* conceptual mapping to a programming model that is strongly *outside*. An `IO String` is a process that produces a `String` result. So if I *were* standing inside a Haskell program, holding such a thing in my hands, it stands to reason that I could run the process and get the string. But we do not *have* such values because we do not *go* inside to *get* anything. We remain at the text editor, writing definitions. One such definition might be for a process which consists of the machine 1. first running some `IO String` process; and then 2. doing some other action with the resulting string.
 
 This is not an unfamiliar task for a JavaScript programmer, who knows that one cannot get the value from a Promise -- all we can do is set up plans for what to do once the Promise is fulfilled. A JavaScript programmer, although inside of the computer, is outside of the event loop. When my callbacks are roused, I do my work, then I fall back sleep to await another gig.
 
