@@ -1,4 +1,4 @@
-body { margin: 0; padding: 0 0 5em; }
+body { margin: 0; padding: 0 0 5em; line-height: 1.55em; }
 
 a { color: #0a64bc; text-decoration: none; }
 
@@ -6,7 +6,9 @@ a:hover { color: #4999e0; }
 
 h1 { margin-top: 1em; }
 
-h1, h2 { clear: both; }
+h1, h2 { clear: both; line-height: 1.8em; }
+
+emph { font-style: italic; }
 
 .container { padding: 0 2em; margin: 0 auto; max-width: 560px; }
 
@@ -48,23 +50,30 @@ div.sourceCode pre span.al, div.sourceCode pre span.er, div.sourceCode pre span.
 
 div.sourceCode pre span.co { font-style: italic; }
 
-@media (min-width: 560px) { div.sourceCode { text-align: center; }
-  div.sourceCode pre { min-width: 560px; text-align: left; } }
+@media (min-width: 560px) { div.sourceCode { text-align: center; } div.sourceCode pre { min-width: 560px; text-align: left; } }
 
-.post-head { display: flex; flex-direction: row; flex-wrap: wrap; align-items: flex-end; margin-bottom: 2em; border-bottom: 1px solid darkgray; }
+h1 { margin-bottom: 1em; border-bottom: 1px solid darkgray; }
 
-.post-title { flex: 1; margin-bottom: 0; }
+h2 { margin-top: 2em; }
 
-.post-date { white-space: nowrap; color: darkgray; }
+.content .photo { width: 125px; float: right; border-radius: 5px; margin: 0 0 1em 1em; }
 
-.post-body { text-align: justify; }
+@media (max-width: 400px) { .content .photo { width: 75px; } .content ul { padding-left: 0; } .content li { list-style-type: none; line-height: 1.7em; } }
 
-.post-title, .post-body { font-family: Merriweather, serif; }
+.post { border-bottom: 1px solid darkgray; margin: 1em 0; line-height: 0; padding-bottom: 0.5em; }
 
-.example { text-align: center; }
+.post br:last-child { clear: both; }
 
-.example div { display: inline-block; padding: 2em 0; }
+.post-head { display: flex; flex-direction: row; flex-wrap: wrap; align-items: flex-end; }
 
-@media (min-width: 500px) { .example div { background: #f8f8f8; padding: 2em; margin: 1em auto; border: 1px solid #dadada; } }
+.post-title { font-size: 115%; flex: 1; }
 
-.example div img { width: 100%; max-width: 467px; }
+.post-head, .post-abstract { line-height: 1.5em; font-family: Merriweather, serif; }
+
+.post-date { font-size: 75%; color: darkgray; white-space: nowrap; }
+
+.post-title, .post-date { display: inline-block; }
+
+.post-abstract { text-align: justify; }
+
+.post-thumb { height: 60px; width: 120px; border-radius: 5px; object-fit: cover; float: right; margin: 0 0 10px 20px; }

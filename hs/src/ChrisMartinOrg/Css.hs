@@ -10,15 +10,18 @@ module ChrisMartinOrg.Css
 import ChrisMartinOrg.Core
 import ChrisMartinOrg.Hash (writeHashBS)
 
+import Relude
+import Prelude ()
+
 import Data.Semigroup ((<>))
 import Data.String (fromString)
 import Text.Blaze.Html5 as H hiding (main)
-import Text.Sass.Options (SassOptions (..), SassOutputStyle (..))
+
+import System.Exit
+import System.Process.Typed
 
 import qualified System.Directory as Dir
 import qualified Text.Blaze.Html5.Attributes as A
-import qualified Text.Sass as Sass
-import qualified Text.Sass.Compilation as SassC
 
 compileCss :: Css -> IO (Either String CompiledCss)
 compileCss (CssSource path) = compileCssSource path
@@ -41,15 +44,12 @@ compileCssSource inFile =
     exists <- Dir.doesFileExist inFile
     if exists
       then do
-        result <- Sass.compileFile inFile sassOpts
-        case result of
-          Left err -> Left <$> SassC.errorMessage err
-          Right bs -> Right <$> CompiledCss <$> writeHashBS bs "css"
+        (exitCode, stdout, stderr) <- readProcess $ proc "sassc" ["--style", "compact", inFile]
+        case exitCode of
+          ExitFailure{} -> return $ Left $ toString (decodeUtf8 stderr :: LText)
+          ExitSuccess -> Right <$> CompiledCss <$> writeHashBS (toStrict stdout) "css"
       else do
         return $ Left ("Missing CSS: " <> inFile)
-
-sassOpts :: SassOptions
-sassOpts = Sass.def { sassOutputStyle = SassStyleCompact }
 
 styleLink :: CompiledCss -> Html
 styleLink href =

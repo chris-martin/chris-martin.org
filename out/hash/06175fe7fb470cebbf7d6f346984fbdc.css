@@ -50,8 +50,7 @@ div.sourceCode pre span.al, div.sourceCode pre span.er, div.sourceCode pre span.
 
 div.sourceCode pre span.co { font-style: italic; }
 
-@media (min-width: 560px) { div.sourceCode { text-align: center; }
-  div.sourceCode pre { min-width: 560px; text-align: left; } }
+@media (min-width: 560px) { div.sourceCode { text-align: center; } div.sourceCode pre { min-width: 560px; text-align: left; } }
 
 .post-head { display: flex; flex-direction: row; flex-wrap: wrap; align-items: flex-end; margin-bottom: 2em; border-bottom: 1px solid darkgray; }
 
@@ -65,4 +64,10 @@ div.sourceCode pre span.co { font-style: italic; }
 
 .post-footer { margin-top: 4em; color: #666; border-top: 1px solid #ccc; }
 
-blockquote { text-align: left; }
+.example { text-align: center; }
+
+.example div { display: inline-block; padding: 2em 0; }
+
+@media (min-width: 500px) { .example div { background: #f8f8f8; padding: 2em; margin: 1em auto; border: 1px solid #dadada; } }
+
+.example div img { width: 100%; max-width: 467px; }

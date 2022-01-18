@@ -1,0 +1,3 @@
+.answer input:not(:checked) + label + div { display: none; }
+
+.answer input:not(:checked) + label:after { content: 'Show answer'; }

@@ -1,3 +1,4 @@
+@charset "UTF-8";
 body { margin: 0; padding: 0 0 5em; line-height: 1.55em; }
 
 a { color: #0a64bc; text-decoration: none; }
@@ -50,8 +51,7 @@ div.sourceCode pre span.al, div.sourceCode pre span.er, div.sourceCode pre span.
 
 div.sourceCode pre span.co { font-style: italic; }
 
-@media (min-width: 560px) { div.sourceCode { text-align: center; }
-  div.sourceCode pre { min-width: 560px; text-align: left; } }
+@media (min-width: 560px) { div.sourceCode { text-align: center; } div.sourceCode pre { min-width: 560px; text-align: left; } }
 
 .post-head { display: flex; flex-direction: row; flex-wrap: wrap; align-items: flex-end; margin-bottom: 2em; border-bottom: 1px solid darkgray; }
 
@@ -65,4 +65,22 @@ div.sourceCode pre span.co { font-style: italic; }
 
 .post-footer { margin-top: 4em; color: #666; border-top: 1px solid #ccc; }
 
-.container { max-width: 45em; }
+ol ol { list-style: lower-alpha; }
+
+table.water { margin: 0 auto; border-spacing: 0; text-align: center; }
+
+table.water td { width: 2em; height: 2em; }
+
+table.water td.wall { background: #ab84ab; }
+
+table.water.unfilled td.wall { border-left: 0.1em solid white; border-right: 0.1em solid white; }
+
+table.water.unfilled tr:last-child td { height: auto; }
+
+table.water.filled td.water { background: #60d1e2; color: white; }
+
+table.water.filled td.water:before { content: '💦'; }
+
+.water-monoid { margin: 3em 1em; }
+
+.water-monoid img { width: 100%; }
