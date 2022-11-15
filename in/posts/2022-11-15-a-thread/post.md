@@ -2,6 +2,7 @@
 title:    A thread
 date:     2022 Nov 15
 slug:     a-thread
+abstract: Thoughts about where the writing should go
 --------------------------------------------------------------------------------
 
 I just started to write a thread on Twitter, and I deleted it. I'd like not to
