@@ -1,0 +1,29 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>The value of packaging</title><link rel="icon" href=""><link href="https://fonts.googleapis.com/css?family=Inconsolata|Merriweather" rel="stylesheet"><link rel="stylesheet" type="text/css" href="../hash/85a636ccc52703eb9b8e8a4508a0cc49.css"><meta name="twitter:site:id" content="18271443"><meta name="twitter:title" content="The value of packaging"></head><body><header class="global-page-header"><div class="container"><a href="..">Chris Martin</a></div></header><main><div><div class="post-head container"><h1 class="post-title">The value of packaging</h1><div class="post-date">2022 November 16</div></div><div class="post-body"><div class="container"><p>Michael Feathers defined &quot;legacy&quot; code as anything without tests. I think of it
+more generally as code that hasn&#39;t been packaged, where &quot;packaging&quot; can entail a
+number of things, including tests, but also any work one might do before feeling
+good about publishing a library.</p><p>The best tool I have seen to avoid the codebase from becoming an accumulation of
+mush is for there not to be &quot;a codebase&quot;, or at least for it to be as small as
+possible, achieved by continually getting stuff out of it and into the
+boundaries of versioned packages.</p><p>Nothing is, of course, &quot;the&quot; code -- That is, one is never referring to all the
+code in the world, all the code an organization has ever written, or even all
+the code that is involved in building a particular executable. There is always
+some particular scope implicit in the &quot;the&quot;. So what is it? &quot;Codebase&quot; is often
+synonymous with &quot;legacy&quot;. It is everything within the locus of our concern.
+Notably, this generally excludes third-party packages.</p><p>One way to help put code out of mind is by getting it under test. But this is
+only a half measure.</p><p>It seems to be very easy to end up as a working programmer with absolutely no
+experience with constructing package boundaries. In school, the largest project
+scale I ever saw was semester-long, and even in &quot;software engineering&quot; class I
+was not instructed or incentivized to create multiple meaningfully distinct
+components. The semester&#39;s work was in <i>the codebase</i> for the semester.</p><p>The experience of pulling a chunk of code out of the application and into a
+package meant for public consumption is eye-opening. With this shift in aim,
+suddenly I am looking at everything in a new light and I see every opportunity
+to polish. Maybe a few things need to be added to make a module comprehensive,
+maybe some things need to be organized or made more consistent, documentation
+written and clarified, and, yes, tests added. And I realize that this piece of
+the project, which I had thought of as good enough for myself but not good
+enough to publish, was really not good enough for myself either.</p><p>Legacy code is that which has not undergone a finishing step: a brief time when
+quality was the author&#39;s chief concern, over a unit of code small enough to
+think about comprehensively, with a sincere intent to then leave it alone for a
+while. It is essential to continually be carving these pieces out of the
+codebase, the place where nothing is safe from the jostling of everyday work.</p></div></div></div></main><div class="post-footer container"><p>I write about Haskell and related topics; you can find my works online on <a href="http://typeclasses.com">Type Classes</a> and in print from <a href="http://joyofhaskell.com"><span style="text-decoration: italic;">The Joy of Haskell</span></a>.</p></div></body></html>
