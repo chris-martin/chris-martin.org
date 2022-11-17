@@ -1,0 +1,11 @@
+cabal-version: 3.0
+
+name: post
+version: 0
+
+library
+    default-language: GHC2021
+    exposed-modules: Post
+    build-depends: base, containers, optparse-applicative
+    default-extensions: ApplicativeDo BlockArguments DerivingStrategies OverloadedLists TypeFamilies
+    hs-source-dirs: .
