@@ -126,7 +126,7 @@ whenever we encode and write process environment variables, HTTP headers, JSON
 objects, and so on.)
 
 ```haskell
-newtype Encode k v a = Encode{ encode :: a -> Data.Map.Map k v }
+newtype Encode k v a = Encode{ encode :: a -> Map k v }
 ```
 
 ```haskell

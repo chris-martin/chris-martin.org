@@ -1,3 +1,5 @@
+> module Post where
+
 > import Control.Applicative (liftA2)
 > import Data.Function ((&))
 > import Data.Map (Map)
@@ -93,7 +95,7 @@ each field into a `Map` and merging all the results together.
 whenever we encode and write process environment variables, HTTP headers, JSON
 objects, and so on.)
 
-> newtype Encode k v a = Encode{ encode :: a -> Data.Map.Map k v }
+> newtype Encode k v a = Encode{ encode :: a -> Map k v }
 
 > to :: k -> Encode k v v
 > to k = Encode \v -> Map.singleton k v
