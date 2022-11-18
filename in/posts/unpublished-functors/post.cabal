@@ -7,5 +7,12 @@ library
     default-language: GHC2021
     exposed-modules: Post
     build-depends: base, containers, optparse-applicative
-    default-extensions: ApplicativeDo BlockArguments DerivingStrategies OverloadedLists TypeFamilies
     hs-source-dirs: .
+    default-extensions:
+        ApplicativeDo
+        BlockArguments
+        DerivingStrategies
+        DuplicateRecordFields
+        LambdaCase
+        OverloadedLists
+        TypeFamilies
