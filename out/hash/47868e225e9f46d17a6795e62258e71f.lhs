@@ -25,9 +25,7 @@ values of all a program's command-line arguments:
 >                   file    :: FilePath,
 >                   jobs    :: Natural }
 
-> opt1 = Opt1{ verbose = True,
->              file = "/tmp/xyz.hs",
->              jobs = 4 }
+> opt1 = Opt1{ verbose = True, file = "/tmp/xyz.hs", jobs = 4 }
 
 Suppose we wrap each of the three fields in the `Identity` constructor. This, of
 course, achieves nothing, apart from giving us something to refer to when we
@@ -38,10 +36,10 @@ think about the alteration that follows.
 >                   jobs    :: Identity Natural }
 
 > opt2 = Opt2{ verbose = Identity True,
->              file = Identity "/tmp/xyz.hs",
->              jobs = Identity 4 }
+>              file    = Identity "/tmp/xyz.hs",
+>              jobs    = Identity 4 }
 
-Now instead of `Identity`, we'll make that a type parameter.
+Now instead of `Identity`, we'll make that a type parameter `f`.
 
 > data Opt3 f = Opt3{ verbose :: f Bool,
 >                     file    :: f FilePath,
@@ -70,8 +68,8 @@ The question is then how to use such a thing, because I do not want three
 parsers; I want them combined into one parser that shall have `Opt3 Identity` as
 its result type.
 
-> something :: Opt3 Opt.Parser -> Opt.Parser (Opt3 Identity)
-> something = undefined
+> multiplyParser :: Opt3 Opt.Parser -> Opt.Parser (Opt3 Identity)
+> multiplyParser = undefined
 
 However, it now feels like we have made some progress, because we can at least
 *express* the composition of parsers (in a way that generalizes to contravariant
@@ -85,10 +83,13 @@ composition that it already has. But notice that we can insert other types of
 `Applicative` composition.
 
 > opt3Codec :: Opt3 (Codec Char String)
-> opt3Codec = Opt3{ verbose = charStringCodec 'v' (Iso show (== "True"))
->                 , file = charStringCodec 'f' (Iso id id)
->                 , jobs = charStringCodec 'k' (Iso show (fromMaybe 0 . readMaybe))
->                 }
+> opt3Codec = Opt3{ verbose = verboseCodec, file = fileCodec, jobs = jobsCodec }
+
+> verboseCodec = charStringCodec 'v' (Iso show (== "True"))
+
+> fileCodec = charStringCodec 'f' (Iso id id)
+
+> jobsCodec = charStringCodec 'k' (Iso show (fromMaybe 0 . readMaybe))
 
 > data Iso a b = Iso (a -> b) (b -> a)
 
@@ -96,6 +97,12 @@ composition that it already has. But notice that we can insert other types of
 > charStringCodec k (Iso encodeString decodeString) =
 >     Codec{ co = Encode \v -> Map.singleton k (encodeString v),
 >            dec = Decode \m -> decodeString (Map.findWithDefault "" k m) }
+
+Again, now we have a way to express the product of three codecs, but we are
+still missing a function to multiply these three factors into a single codec.
+
+> multiplyCodec :: Opt3 (Codec k v) -> Codec k v (Opt3 Identity)
+> multiplyCodec = undefined
 
 ---
 
@@ -108,7 +115,7 @@ trick lets us eliminate it.
 > type Factor :: (Type -> Type) -> Type -> Type
 > type family Factor f a where
 >     Factor Identity a = a
->     Factor f a = f a
+>     Factor f        a = f a
 
 > data Opt4 f = Opt4{ verbose :: Factor f Bool,
 >                     file    :: Factor f FilePath,
@@ -123,18 +130,28 @@ Values of `Opt4 Identity` can now be written without an `Identity` term, exactly
 as we wrote `opt1`.
 
 > opt4 :: Opt4 Identity
-> opt4 = Opt4{ verbose = True,
->              file = "/tmp/xyz.hs",
->              jobs = 4 }
+> opt4 = Opt4{ verbose = True, file = "/tmp/xyz.hs", jobs = 4 }
 
-And the codec definition is unchanged.
+And the codec definitions for `Opt3` and `Opt4` are the same.
 
-> opt4Codec :: Opt3 (Codec Char String)
-> opt4Codec = Opt3{ verbose = charStringCodec 'v' (Iso show (== "True"))
->                 , file = charStringCodec 'f' (Iso id id)
->                 , jobs = charStringCodec 'k' (Iso show (fromMaybe 0 . readMaybe))
->                 }
+> opt4Codec :: Opt4 (Codec Char String)
+> opt4Codec = Opt4{ verbose = verboseCodec, file = fileCodec, jobs = jobsCodec }
 
 ---
 
+Now we must return to how to define the two "multiply" functions.
 
+- `Opt3 Opt.Parser -> Opt.Parser (Opt3 Identity)`
+- `Opt3 (Codec k v) -> Codec k v (Opt3 Identity)`
+
+More generally, something that looks like:
+
+> multiply :: forall ( factors :: (Type -> Type) -> Type )
+>                    ( functor ::  Type -> Type          ).
+>             factors functor -> functor (factors Identity)
+> multiply = undefined
+
+In our latter example, the `factors` are `Opt4` (representing the three option
+factors `verbose`, `file`, and `jobs`) and the `functor` is `Codec k v`.
+
+But that's a job for another day.
