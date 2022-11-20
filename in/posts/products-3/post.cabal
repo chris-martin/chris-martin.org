@@ -10,6 +10,7 @@ library
     hs-source-dirs: .
     default-extensions:
         BlockArguments
+        DataKinds
         DefaultSignatures
         FunctionalDependencies
         LambdaCase
