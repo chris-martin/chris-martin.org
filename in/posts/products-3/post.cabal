@@ -9,10 +9,12 @@ library
     build-depends: base, containers, optparse-applicative
     hs-source-dirs: .
     default-extensions:
+        AllowAmbiguousTypes
         BlockArguments
         DataKinds
         DefaultSignatures
         FunctionalDependencies
+        IncoherentInstances
         LambdaCase
         OverloadedLists
         QuantifiedConstraints

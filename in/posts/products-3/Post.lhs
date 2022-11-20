@@ -80,6 +80,9 @@ The mechanism we have for this is GHC generics, a system that I believe is
 reasonably designed but still fills me with dread. I've played with generics
 once or twice before, but I will still be learning about it as I go here.
 
+> deriving instance Generic (Opt f)
+> deriving instance Generic (OptDiff f)
+
 The documentation suggests "in GHCi, you can expand a type family such as `Rep`
 using the `:kind!` command, so let's try it to see what information generics
 gives us to work with.
@@ -125,13 +128,11 @@ Rep (Opt (Codec Char String)) :: * -> *
 That is a tremendous mess. Whenever I see a mess like that, my first impulse is
 to reorganize it before attempting to read it.
 
-> type OptDataRep = M1 D
->     ('MetaData "Opt" "Post" "post-0-inplace" 'False)
->     OptConstructorRep
+> type OptDataRep = M1 D ('MetaData "Opt" "Post" "post-0-inplace" 'False)
+>                        OptConstructorRep
 
-> type OptConstructorRep = M1 C
->     ('MetaCons "Opt" 'PrefixI 'True)
->     (VerboseRep :*: (FileRep :*: JobsRep))
+> type OptConstructorRep = M1 C ('MetaCons "Opt" 'PrefixI 'True)
+>                               (VerboseRep :*: (FileRep :*: JobsRep))
 
 > type FileRep = M1 S
 >     ('MetaSel ('Just "file") 'NoSourceUnpackedness 'NoSourceStrictness 'DecidedLazy)
@@ -170,13 +171,11 @@ clean it up again.
 λ> :kind! Rep (OptDiff (Codec Char String))
 ```
 
-> type OptDiffDataRep = M1 D
->     ('MetaData "OptDiff" "Post" "post-0-inplace" 'False)
->     OptDiffConstructorRep
+> type OptDiffDataRep = M1 D ('MetaData "OptDiff" "Post" "post-0-inplace" 'False)
+>                            OptDiffConstructorRep
 
-> type OptDiffConstructorRep = M1 C
->    ('MetaCons "OptDiff" 'PrefixI 'True)
->    (OptDiffOldRep :*: OptDiffNewRep)
+> type OptDiffConstructorRep = M1 C ('MetaCons "OptDiff" 'PrefixI 'True)
+>                                   (OptDiffOldRep :*: OptDiffNewRep)
 
 > type OptDiffOldRep = M1 S
 >     ('MetaSel ('Just "old") 'NoSourceUnpackedness 'NoSourceStrictness 'DecidedLazy)
@@ -199,30 +198,41 @@ the type `OptDiff (Codec k v)` that `new` and `old` are node fields, whereas
 descend further into them to consider the fields `co` and `dec`. My first goal
 is to simply print the tree of field names, as evidence that this aim is
 distinction possible. The result will have the type `Tree (Maybe String)`, where
-the field names are in a `Maybe` context because not all fields have names (only
-ones written using record syntax), nor does the tree root.
+the field names are in a `Maybe` context because not all selectors have names
+(only when written using record syntax).
 
-It's time for some generics.
+The typical pattern for generics is to define two classes: `FactorsForest` will
+be the class for the types we're interested in such as `Opt f` and `OptDiff f`,
+and `RepFactorsForest` will have instances for `Rep (Opt f)` and `Rep (OptDiff f)`.
 
-> deriving instance Generic (Opt f)
-> deriving instance Generic (OptDiff f)
+> class
+>     -- (RepFactorsForest f (Rep factors), Generic factors) =>
+>     FactorsForest f factors -- | factors -> f
+>   where
+>     factorsForest :: factors -> Forest (Maybe String)
+>     default factorsForest ::
+>         (RepFactorsForest f (Rep factors), Generic factors) =>
+>         factors -> Forest (Maybe String)
+>     factorsForest = repFactorsForest @f . Generic.from
 
-% The typical pattern for generics is to define two classes: `FactorsForest` will
-% be the class for the types we're interested in such as `Opt f` and `OptDiff f`,
-% and `RepFactorsForest` will have instances for `Rep (Opt f)` and
-% `Rep (OptDiff f)`.
+> class RepFactorsForest f rep -- | rep -> f
+>   where
+>     repFactorsForest :: rep x -> Forest (Maybe String)
 
-% > class (RepFactorsForest f (Rep factors)) => FactorsForest f factors | factors -> f
-% >   where
-% >     factorsForest :: factors -> Forest (Maybe String)
-% >
-% >     default factorsForest ::
-% >         (Generic factors, RepFactorsForest f (Rep factors)) =>
-% >         factors -> Forest (Maybe String)
-% >     factorsForest = repFactorsForest . Generic.from
+The `factorsForest` method has a default implementation that simply converts a
+value to its generic representation and applies `repFactorsForest`. The
+`FactorsForest` has a `RepFactorsForest` constraint, which is more constraining
+than necessary (the constraint could be on the default method signature
+instead), but putting the constraint on the class slightly improves the quality
+of the error messages that we get if we try to derive `FactorsForest` on a type
+that does not have the appropriate shape.
 
-% > class RepFactorsForest f rep | rep -> f where
-% >     repFactorsForest :: rep x -> Forest (Maybe String)
+---
+
+> instance FactorsForest f content => RepFactorsForest f (K1 R content) where
+>     repFactorsForest (K1 x) = factorsForest x
+
+---
 
 % Whether a field's type has a `FactorsForest` instance is what will distinguish
 % nodes from leaves. Whether a type's `Rep` has a `RepFactorsForest` instance is
@@ -234,33 +244,30 @@ It's time for some generics.
 % > instance FactorsForest (Codec k v) (Opt (Codec k v))
 % > instance FactorsForest (Codec k v) (OptDiff (Codec k v))
 
+> instance {-# overlappable #-} FactorsForest f a where factorsForest _ = []
+
+> instance FactorsForest f (Opt f)
+> instance FactorsForest f (OptDiff f)
+
 % > instance FactorsForest (Codec k v a) (Codec k v a) where
 % >     factorsForest _ = []
 
-% > printFactorsForest :: FactorsForest f x => x -> IO ()
-% > printFactorsForest = putStr . Tree.drawForest . fmap (fmap (fromMaybe "?")) . factorsForest
+> printFactorsForest :: FactorsForest f x => x -> IO ()
+> printFactorsForest = putStr . Tree.drawForest . fmap (fmap (fromMaybe "?")) . factorsForest
 
 ---
 
-% Additionally, a tree class will be required at the representation layer only, to
-% describe fields. The root of the tree here is the field name. There is no
-% corresponding class at the type layer because a field itself (or "selector", in
-% generics parlance) does not correspond to a type.
+For a selector (`S`), if the type of the field has a forest, then we construct a
+forest with a single tree by taking the name of the selector as the root, and
+the forest of the type as its subforest.
 
-% > class RepFactorsTree rep where
-% >     repFactorsTree :: rep x -> Tree (Maybe String)
-
-% For a selector (`S`), if the type of the field has a forest, then we construct a
-% tree by taking the name of the selector as the root, and the forest of the type
-% as its subforest.
-
-% > instance (Selector selector, RepFactorsForest content) =>
-% >    RepFactorsTree (M1 S selector content)
-% >  where
-% >     repFactorsTree selector@(Generic.M1 content) =
-% >         Node
-% >           (Just (Generic.selName selector))  -- name of the selector
-% >           (repFactorsForest content)         -- subforest
+> instance (Selector selector, RepFactorsForest f content) =>
+>    RepFactorsForest f (M1 S selector content)
+>  where
+>     repFactorsForest selector@(Generic.M1 content) = (: []) $
+>         Node
+>           (Just (Generic.selName selector))  -- name of the selector
+>           (repFactorsForest @f content)         -- subforest
 
 ---
 
@@ -279,10 +286,10 @@ It's time for some generics.
 
 % ...
 
-% > instance (RepFactorsForest f a, RepFactorsForest f b) =>
-% >     RepFactorsForest f (a :*: b)
-% >   where
-% >     repFactorsForest (a :*: b) = repFactorsForest a <> repFactorsForest b
+> instance (RepFactorsForest f a, RepFactorsForest f b) =>
+>     RepFactorsForest f (a :*: b)
+>   where
+>     repFactorsForest (a :*: b) = repFactorsForest @f a <> repFactorsForest @f b
 
 % `K1 R` kicks us back around from the representation level to the type level. `x`
 % below is not a representation but an actual value.
@@ -296,12 +303,12 @@ It's time for some generics.
 % Datatype and constructor (`D` and `C`) metadata are irrelevant, so we just skip
 % down through to their content.
 
-% > instance RepFactorsForest f content =>
-% >     RepFactorsForest f (M1 D datatype content)
-% >   where
-% >     repFactorsForest (M1 content) = repFactorsForest content
+> instance RepFactorsForest f content =>
+>     RepFactorsForest f (M1 D datatype content)
+>   where
+>     repFactorsForest (M1 content) = repFactorsForest @f content
 
-% > instance RepFactorsForest f content =>
-% >     RepFactorsForest f (M1 C constructor content)
-% >   where
-% >     repFactorsForest (M1 content) = repFactorsForest content
+> instance RepFactorsForest f content =>
+>     RepFactorsForest f (M1 C constructor content)
+>   where
+>     repFactorsForest (M1 content) = repFactorsForest @f content
