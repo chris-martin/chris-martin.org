@@ -65,10 +65,10 @@ I will go ahead and add one more goal, to imitate the full power of what `rel8`
 can do: I want an approach that will work for nested records -- for example, to
 have a codec for `Opt`-squared:
 
-> data OptDiff f = OptDiff{ old :: Opt f, new :: Opt f }
+> data Diff a f = Diff{ old :: a f, new :: a f }
 
-> diff :: OptDiff Identity
-> diff = OptDiff{ old = opt1, new = opt2 }
+> diff :: Diff Opt Identity
+> diff = Diff{ old = opt1, new = opt2 }
 
 This complicates matters. We must now consider our domain to be trees, where the
 nodes are the `factors` records (`OptDiff` or `Opt`) and the leaves are members
@@ -81,7 +81,7 @@ reasonably designed but still fills me with dread. I've played with generics
 once or twice before, but I will still be learning about it as I go here.
 
 > deriving instance Generic (Opt f)
-> deriving instance Generic (OptDiff f)
+> deriving instance Generic (Diff a f)
 
 The documentation suggests "in GHCi, you can expand a type family such as `Rep`
 using the `:kind!` command, so let's try it to see what information generics
@@ -247,7 +247,7 @@ that does not have the appropriate shape.
 > instance {-# overlappable #-} FactorsForest a where factorsForest _ = []
 
 > instance FactorsForest (Opt f)
-> instance FactorsForest (OptDiff f)
+> instance FactorsForest (Diff a f)
 
 % > instance FactorsForest (Codec k v a) (Codec k v a) where
 % >     factorsForest _ = []
