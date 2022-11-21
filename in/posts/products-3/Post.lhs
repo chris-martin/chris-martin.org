@@ -13,20 +13,16 @@
 
 > import GHC.Generics
 
-Definitions carried over from parts one and two:
+Definitions carried over (with some small modifications) from parts one and two:
 
-> newtype Decode k v a = Decode{ decode :: Map k v -> a }
-> newtype Encode k v a = Encode{ encode :: a -> Map k v }
-> data Codec k v a = Codec{ co :: Encode k v a, dec :: Decode k v a }
-
-> verboseCodec = charStringCodec 'v' (Iso show (== "True"))
-> fileCodec = charStringCodec 'f' (Iso id id)
-> jobsCodec = charStringCodec 'k' (Iso show (fromMaybe 0 . readMaybe))
+> newtype Decode format a = Decode{ decode :: format -> a }
+> newtype Encode format a = Encode{ encode :: a -> format }
+> data Codec format a = Codec{ co :: Encode format a, dec :: Decode format a }
 
 > data Iso a b = Iso (a -> b) (b -> a)
 
-> charStringCodec :: Char -> Iso a String -> Codec Char String a
-> charStringCodec k (Iso encodeString decodeString) =
+> strmapCodec :: String -> Iso a String -> Codec (Map String String) a
+> strmapCodec k (Iso encodeString decodeString) =
 >     Codec{ co = Encode \v -> Map.singleton k (encodeString v),
 >            dec = Decode \m -> decodeString (Map.findWithDefault "" k m) }
 
@@ -45,12 +41,16 @@ Definitions carried over from parts one and two:
 > opt2 :: Opt Identity
 > opt2 = Opt{ verbose = True, file = "/run/user/1000/xyz.hs", jobs = 8 }
 
-> optCodec :: Opt (Codec Char String)
-> optCodec = Opt{ verbose = verboseCodec, file = fileCodec, jobs = jobsCodec }
+> optCodec :: Opt (Codec (Map String String))
+> optCodec = Opt
+>     { verbose = strmapCodec "v" (Iso show (== "True"))
+>     , file = strmapCodec "f" (Iso id id)
+>     , jobs = strmapCodec "k" (Iso show (fromMaybe 0 . readMaybe))
+>     }
 
 I left off with the concrete goal of defining this function ...
 
-> multiplyCodec :: Opt (Codec k v) -> Codec k v (Opt Identity)
+> multiplyCodec :: Opt (Codec format) -> Codec format (Opt Identity)
 > multiplyCodec = undefined
 
 ...which I hope to write as a specialization of a more general mechanism that
@@ -65,14 +65,39 @@ I will go ahead and add one more goal, to imitate the full power of what `rel8`
 can do: I want an approach that will work for nested records -- for example, to
 have a codec for `Opt`-squared:
 
-> data OptDiff f = OptDiff{ old :: Opt f, new :: Opt f }
+> data Diff a f = Diff{ old :: a f, new :: a f }
 
-> diff :: OptDiff Identity
-> diff = OptDiff{ old = opt1, new = opt2 }
+> diff :: Diff Opt Identity
+> diff = Diff{ old = opt1, new = opt2 }
+
+> diffCodec :: Diff Opt (Codec (Map String String))
+> diffCodec = Diff
+>     { old = Opt
+>         { verbose = strmapCodec "v" (Iso show (== "True"))
+>         , file = strmapCodec "f" (Iso id id)
+>         , jobs = strmapCodec "k" (Iso show (fromMaybe 0 . readMaybe))
+>         }
+>     , new = Opt
+>         { verbose = strmapCodec "v'" (Iso show (== "True"))
+>         , file = strmapCodec "f'" (Iso id id)
+>         , jobs = strmapCodec "k'" (Iso show (fromMaybe 0 . readMaybe))
+>         }
+>     }
 
 This complicates matters. We must now consider our domain to be trees, where the
 nodes are the `factors` records (`OptDiff` or `Opt`) and the leaves are members
 of the `functor` (`Codec k v`, `Opt.Parser`, or `Identity`).
+
+---
+
+> class IsFactors (is :: Bool) (a :: Type) | a -> is where isf :: String
+> instance (is ~ 'False) => IsFactors is a where isf = "false"
+
+> instance IsFactors 'True (Opt f) where isf = "opt"
+> instance IsFactors 'True (Diff a f) where isf = "diff"
+
+% > instance IsFactors 'True Opt
+% > instance IsFactors 'True Diff
 
 ---
 
@@ -81,7 +106,7 @@ reasonably designed but still fills me with dread. I've played with generics
 once or twice before, but I will still be learning about it as I go here.
 
 > deriving instance Generic (Opt f)
-> deriving instance Generic (OptDiff f)
+> deriving instance Generic (Diff f a)
 
 The documentation suggests "in GHCi, you can expand a type family such as `Rep`
 using the `:kind!` command, so let's try it to see what information generics
@@ -128,23 +153,23 @@ Rep (Opt (Codec Char String)) :: * -> *
 That is a tremendous mess. Whenever I see a mess like that, my first impulse is
 to reorganize it before attempting to read it.
 
-> type OptDataRep = M1 D ('MetaData "Opt" "Post" "post-0-inplace" 'False)
->                        OptConstructorRep
+% > type OptDataRep = M1 D ('MetaData "Opt" "Post" "post-0-inplace" 'False)
+% >                        OptConstructorRep
 
-> type OptConstructorRep = M1 C ('MetaCons "Opt" 'PrefixI 'True)
->                               (VerboseRep :*: (FileRep :*: JobsRep))
+% > type OptConstructorRep = M1 C ('MetaCons "Opt" 'PrefixI 'True)
+% >                               (VerboseRep :*: (FileRep :*: JobsRep))
 
-> type FileRep = M1 S
->     ('MetaSel ('Just "file") 'NoSourceUnpackedness 'NoSourceStrictness 'DecidedLazy)
->     (K1 R (Codec Char [Char] [Char]))
+% > type FileRep = M1 S
+% >     ('MetaSel ('Just "file") 'NoSourceUnpackedness 'NoSourceStrictness 'DecidedLazy)
+% >     (K1 R (Codec Char [Char] [Char]))
 
-> type VerboseRep = M1 S
->     ('MetaSel ('Just "verbose") 'NoSourceUnpackedness 'NoSourceStrictness 'DecidedLazy)
->     (K1 R (Codec Char [Char] Bool))
+% > type VerboseRep = M1 S
+% >     ('MetaSel ('Just "verbose") 'NoSourceUnpackedness 'NoSourceStrictness 'DecidedLazy)
+% >     (K1 R (Codec Char [Char] Bool))
 
-> type JobsRep = M1 S
->     ('MetaSel ('Just "jobs") 'NoSourceUnpackedness 'NoSourceStrictness 'DecidedLazy)
->     (K1 R (Codec Char [Char] Natural))
+% > type JobsRep = M1 S
+% >     ('MetaSel ('Just "jobs") 'NoSourceUnpackedness 'NoSourceStrictness 'DecidedLazy)
+% >     (K1 R (Codec Char [Char] Natural))
 
 What we see is a tree of "M1", where the M seems to stand for "meta
 information". `M1` has three parameters:
@@ -171,19 +196,19 @@ clean it up again.
 λ> :kind! Rep (OptDiff (Codec Char String))
 ```
 
-> type OptDiffDataRep = M1 D ('MetaData "OptDiff" "Post" "post-0-inplace" 'False)
->                            OptDiffConstructorRep
+% > type OptDiffDataRep = M1 D ('MetaData "OptDiff" "Post" "post-0-inplace" 'False)
+% >                            OptDiffConstructorRep
 
-> type OptDiffConstructorRep = M1 C ('MetaCons "OptDiff" 'PrefixI 'True)
->                                   (OptDiffOldRep :*: OptDiffNewRep)
+% > type OptDiffConstructorRep = M1 C ('MetaCons "OptDiff" 'PrefixI 'True)
+% >                                   (OptDiffOldRep :*: OptDiffNewRep)
 
-> type OptDiffOldRep = M1 S
->     ('MetaSel ('Just "old") 'NoSourceUnpackedness 'NoSourceStrictness 'DecidedLazy)
->     (K1 R (Opt (Codec Char [Char])))
+% > type OptDiffOldRep = M1 S
+% >     ('MetaSel ('Just "old") 'NoSourceUnpackedness 'NoSourceStrictness 'DecidedLazy)
+% >     (K1 R (Opt (Codec Char [Char])))
 
-> type OptDiffNewRep = M1 S
->     ('MetaSel ('Just "new") 'NoSourceUnpackedness 'NoSourceStrictness 'DecidedLazy)
->     (K1 R (Opt (Codec Char [Char])))
+% > type OptDiffNewRep = M1 S
+% >     ('MetaSel ('Just "new") 'NoSourceUnpackedness 'NoSourceStrictness 'DecidedLazy)
+% >     (K1 R (Opt (Codec Char [Char])))
 
 There is nothing in the rep of `OptDiff` that we haven't already seen in the rep
 of `Opt`. One `M1 D`, one `M1 C`, and two `M1 S`, each of which contains a `K1 R`
@@ -205,17 +230,16 @@ The typical pattern for generics is to define two classes: `FactorsForest` will
 be the class for the types we're interested in such as `Opt f` and `OptDiff f`,
 and `RepFactorsForest` will have instances for `Rep (Opt f)` and `Rep (OptDiff f)`.
 
-> class
->     -- (RepFactorsForest f (Rep factors), Generic factors) =>
->     FactorsForest f factors -- | factors -> f
+> class FactorsForest factors
 >   where
 >     factorsForest :: factors -> Forest (Maybe String)
 >     default factorsForest ::
->         (RepFactorsForest f (Rep factors), Generic factors) =>
+>         (RepFactorsForest (Rep factors), Generic factors) =>
 >         factors -> Forest (Maybe String)
->     factorsForest = repFactorsForest @f . Generic.from
+>     factorsForest = repFactorsForest . Generic.from
 
-> class RepFactorsForest f rep -- | rep -> f
+
+> class RepFactorsForest rep -- | rep -> f
 >   where
 >     repFactorsForest :: rep x -> Forest (Maybe String)
 
@@ -227,9 +251,12 @@ instead), but putting the constraint on the class slightly improves the quality
 of the error messages that we get if we try to derive `FactorsForest` on a type
 that does not have the appropriate shape.
 
+
+> instance IsFactors 'False a => FactorsForest a where factorsForest _ = []
+
 ---
 
-> instance FactorsForest f content => RepFactorsForest f (K1 R content) where
+> instance (IsFactors 'True content, FactorsForest content) => RepFactorsForest (K1 R content) where
 >     repFactorsForest (K1 x) = factorsForest x
 
 ---
@@ -244,15 +271,13 @@ that does not have the appropriate shape.
 % > instance FactorsForest (Codec k v) (Opt (Codec k v))
 % > instance FactorsForest (Codec k v) (OptDiff (Codec k v))
 
-> instance {-# overlappable #-} FactorsForest f a where factorsForest _ = []
-
-> instance FactorsForest f (Opt f)
-> instance FactorsForest f (OptDiff f)
+% > instance FactorsForest (Opt f)
+% > instance FactorsForest (Diff a f)
 
 % > instance FactorsForest (Codec k v a) (Codec k v a) where
 % >     factorsForest _ = []
 
-> printFactorsForest :: FactorsForest f x => x -> IO ()
+> printFactorsForest :: FactorsForest x => x -> IO ()
 > printFactorsForest = putStr . Tree.drawForest . fmap (fmap (fromMaybe "?")) . factorsForest
 
 ---
@@ -261,13 +286,13 @@ For a selector (`S`), if the type of the field has a forest, then we construct a
 forest with a single tree by taking the name of the selector as the root, and
 the forest of the type as its subforest.
 
-> instance (Selector selector, RepFactorsForest f content) =>
->    RepFactorsForest f (M1 S selector content)
+> instance (Selector selector, RepFactorsForest content) =>
+>    RepFactorsForest (M1 S selector content)
 >  where
 >     repFactorsForest selector@(Generic.M1 content) = (: []) $
 >         Node
 >           (Just (Generic.selName selector))  -- name of the selector
->           (repFactorsForest @f content)         -- subforest
+>           (repFactorsForest content)         -- subforest
 
 ---
 
@@ -286,10 +311,10 @@ the forest of the type as its subforest.
 
 % ...
 
-> instance (RepFactorsForest f a, RepFactorsForest f b) =>
->     RepFactorsForest f (a :*: b)
+> instance (RepFactorsForest a, RepFactorsForest b) =>
+>     RepFactorsForest (a :*: b)
 >   where
->     repFactorsForest (a :*: b) = repFactorsForest @f a <> repFactorsForest @f b
+>     repFactorsForest (a :*: b) = repFactorsForest a <> repFactorsForest b
 
 % `K1 R` kicks us back around from the representation level to the type level. `x`
 % below is not a representation but an actual value.
@@ -303,12 +328,12 @@ the forest of the type as its subforest.
 % Datatype and constructor (`D` and `C`) metadata are irrelevant, so we just skip
 % down through to their content.
 
-> instance RepFactorsForest f content =>
->     RepFactorsForest f (M1 D datatype content)
+> instance RepFactorsForest content =>
+>     RepFactorsForest (M1 D datatype content)
 >   where
->     repFactorsForest (M1 content) = repFactorsForest @f content
+>     repFactorsForest (M1 content) = repFactorsForest content
 
-> instance RepFactorsForest f content =>
->     RepFactorsForest f (M1 C constructor content)
+> instance RepFactorsForest content =>
+>     RepFactorsForest (M1 C constructor content)
 >   where
->     repFactorsForest (M1 content) = repFactorsForest @f content
+>     repFactorsForest (M1 content) = repFactorsForest content
