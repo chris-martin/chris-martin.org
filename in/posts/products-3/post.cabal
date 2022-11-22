@@ -14,7 +14,6 @@ library
         DataKinds
         DefaultSignatures
         FunctionalDependencies
-        IncoherentInstances
         LambdaCase
         OverloadedLists
         QuantifiedConstraints
