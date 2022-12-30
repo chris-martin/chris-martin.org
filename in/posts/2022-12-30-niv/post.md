@@ -11,7 +11,8 @@ you have to opt into it.
 For a few years I've been using Vaibhav Sagar's
 [Quick and Easy Nixpkgs Pinning] approach.
 
-More recently I've started using [Niv].
+More recently I've started using [Niv], a more fully-featured tool which does
+just about the same thing.
 
   [Quick and Easy Nixpkgs Pinning]: https://vaibhavsagar.com/blog/2018/05/27/quick-easy-nixpkgs-pinning/
 
