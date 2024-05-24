@@ -5,9 +5,7 @@ slug: hard-reality
 abstract: There's got to be more to life than touching grass.
 ---
 
-Most people don't seem to have a coherent articulation of what a "hard" job is. I started thinking about this in school a long time ago: Nearly everybody at Georgia Tech knows they're at the hardest school around, and about half of them believe they're in the hardest degree program there. Computer programmers all know they work on some of humanity's hardest problems.[^cyber] But they're hard-pressed to give any demonstrable rationale. Harder tasks are those which ask more of you, but more of what? The judgements are just vibes.
-
-  [^cyber]: "It is — it is a huge problem. [...] The security aspect of cyber is very, very tough. And maybe it's hardly doable." - President Donald Trump, 2016
+Most people don't seem to have a coherent articulation of what a "hard" job is. I started thinking about this in school a long time ago: Nearly everybody at Georgia Tech knows they're at the hardest school around, and about half of them believe they're in the hardest degree program there. Computer programmers all know they work on some of humanity's hardest problems.<sup>1</sup> But they're hard-pressed to give any demonstrable rationale. Harder tasks are those which ask more of you, but more of what? The judgements are just vibes.
 
 I'd like to offer some clarity by suggesting that there are at least two fairly distinct senses in which activities can be described as difficult. The two I have in mind are:
 
@@ -16,17 +14,11 @@ I'd like to offer some clarity by suggesting that there are at least two fairly 
 
 Despite some overlap, these can be discussed separately, and there are some tasks for which one aspect or the other doesn't apply. A comparison between raising dogs and children is described mostly by axis 2; there are for the most part not questions of whether the animal or child will survive to adulthood. Games fall pretty squarely onto axis 1; some games are harder than others to win, but regardless of outcome you've been playing a game. So when we say that FTL and childrearing are difficult, we're talking about aspects orthogonal enough that they're not comparable.
 
-These two senses of difficulty correspond loosely to the notions of *closed* and *open* problems. A closed problem is self-contained, its rules set and its limits known. It has measurable outcomes and clear success criteria. Open problems are unsimplified and contain many unknowns, some not merely unknown but *unknowable*. They may admit no solution at all, only varying degrees of improvement that are difficult to perceive. Determining the criteria for success is part of an open problem. Mathematics offers paradigmatic closed problems, and philosophy[^philosophy] and social sciences[^social] exemplify open problems.
+These two senses of difficulty correspond loosely to the notions of *closed* and *open* problems. A closed problem is self-contained, its rules set and its limits known. It has measurable outcomes and clear success criteria. Open problems are unsimplified and contain many unknowns, some not merely unknown but *unknowable*. They may admit no solution at all, only varying degrees of improvement that are difficult to perceive. Determining the criteria for success is part of an open problem. Mathematics offers paradigmatic closed problems, and philosophy<sup>2</sup> and social sciences<sup>3</sup> exemplify open problems.
 
 When we say that the death of a loved one is difficult, that doesn't mean you're likely to fail at it. It means your grief is an open problem.
 
-  [^philosophy]: It is interesting to admit that mathematics and philosophy were once one and the same discipline. As Julie is fond of saying, every time philosophy makes a great leap forward, its success is carved out into a field of study of its own and is no longer considered to be philosophy. What we call "philosophy" today, therefore, consists of what remains: our hardest, or I should say most open, questions.
-
-  [^social]: The curse of the social sciences is that rather than accept the nature of their work, they keep trying to turn open problems into closed problems and failing spectacularly.
-
-My family has been engaged in a now months-long roast of Matthew Crawford.[^men] It began by reading *Shop Class as Soulcraft* together, and we have continued on to *Why We Drive* mostly for the purpose of giving it a sort of *Mystery Science Theater 3000* treatment. Crawford places a lot of emphasis on the soul-enriching nature of confronting "hard reality" and learning skills from problems at which you can fail. I haven't yet seen him borrow the phrase "character-building" from Calvin's dad, but I'm still waiting for it.
-
-  [^men]: Julie's scathing [Men and machines](https://thestore.substack.com/p/men-and-machines) only begins to scratch the surface of what is wrong with this man's philosophy.
+My family has been engaged in a now months-long roast of Matthew Crawford.<sup>4</sup> It began by reading *Shop Class as Soulcraft* together, and we have continued on to *Why We Drive* mostly for the purpose of giving it a sort of *Mystery Science Theater 3000* treatment. Crawford places a lot of emphasis on the soul-enriching nature of confronting "hard reality" and learning skills from problems at which you can fail. I haven't yet seen him borrow the phrase "character-building" from Calvin's dad, but I'm still waiting for it.
 
 It is a good point. What he spends hundreds of pages infuriatingly missing, however, is that the discussion should not be solely limited to closed problems. This omission undermines his thesis (which, I repeat, is a good one) because it seems clear that he prefers to engage with closed problems because they are more comfortable -- easier -- to him. The automechanical projects from whose unyielding reality Crawford derives his pride are, to his life as a whole, quite safe. If he fails at a project, he at least knows that he failed, knows what he learned from it, has closure, moves on and carries forward an anecdote and some pride in the demonstration of his toughness.
 
@@ -48,6 +40,24 @@ Cooking a meal from a recipe and a grocery store is a fairly closed task. Most o
 
 I am not convinced that single-minded focus on skill and problem solving is as culturally denigrated and in need of defense as Crawford claims. What the fictional Gregory House, Don Draper, Walter White, and Dwight Schrute have in common is that because of a refusal to be distracted by complex open social challenges (that is, because they are assholes) they are all exceptionally successful. (Am I really asked to believe that House doesn't kill half his patients and that anyone would buy anything from Dwight? Because I do not.) The asshole genius myth has a lot of traction, to the extent that in many fields simply being rude serves as a compelling credential, one that Crawford admires in his mentors and often claims for himself with a good deal of vice signaling regarding the ease with which he accrues the ill will of others.
 
-The best argument in *Shop Class as Soulcraft* is that people have an inherent need for tactile work. Why it is that we must glorify what are otherwise utterly unimportant hobby projects is beyond me. I can only speculate that you can't write a best seller that asks too much of your audience, and telling readers that they ought to do stuff that is both fun and readily satisfying isn't asking for much. Asking readers to be more involved in things that are really necessary -- Do more stuff with the kids, be more involved at all stages in the preparation of your food, learn to do more of the maintenance work on your own house -- seems to me like a much better way to make this point. There is so much work to do, much of it in the arena of deciding which work is most important in your life. Instead he takes the easy way out, selling only escapism from "the second shift that we call home"[^home] with an enticing (if one enjoys it) veneer of countercultural valor.
+The best argument in *Shop Class as Soulcraft* is that people have an inherent need for tactile work. Why it is that we must glorify what are otherwise utterly unimportant hobby projects is beyond me. I can only speculate that you can't write a best seller that asks too much of your audience, and telling readers that they ought to do stuff that is both fun and readily satisfying isn't asking for much. Asking readers to be more involved in things that are really necessary -- Do more stuff with the kids, be more involved at all stages in the preparation of your food, learn to do more of the maintenance work on your own house -- seems to me like a much better way to make this point. There is so much work to do, much of it in the arena of deciding which work is most important in your life. Instead he takes the easy way out, selling only escapism from "the second shift that we call home"<sup>5</sup> with an enticing (if one enjoys it) veneer of countercultural valor.
 
-  [^home] A quote from the Prelude of *Why We Drive*.
+---
+
+<sup>1</sup> "It is — it is a huge problem. [...] The security aspect of cyber is very, very tough. And maybe it's hardly doable." - President Donald Trump, 2016
+
+<br>
+
+<sup>2</sup> It is interesting to admit that mathematics and philosophy were once one and the same discipline. As Julie is fond of saying, every time philosophy makes a great leap forward, its success is carved out into a field of study of its own and is no longer considered to be philosophy. What we call "philosophy" today, therefore, consists of what remains: our hardest, or I should say most open, questions.
+
+<br>
+
+<sup>3</sup> The curse of the social sciences is that rather than accept the nature of their work, they keep trying to turn open problems into closed problems and failing spectacularly.
+
+<br>
+
+<sup>4</sup> Julie's scathing <a href="https://thestore.substack.com/p/men-and-machines">Men and machines</a> only begins to scratch the surface of what is wrong with this man's philosophy.
+
+<br>
+
+<sup>5</sup> A quote from the Prelude of <i>Why We Drive</i>.
