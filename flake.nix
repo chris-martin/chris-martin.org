@@ -19,9 +19,9 @@
         combineOverrides = old:
           fold composeExtensions (old.overrides or (_: _: { }));
 
-        haskellPackages = pkgs.haskellPackages.override {
+        haskellPackages = pkgs.haskell.packages.ghc810.override {
           overrides = new: old: {
-            chris-martin-org = new.callPackage ./chris-martin-org.nix {};
+            chris-martin-org = new.callPackage ./chris-martin-org {};
           };
         };
 
@@ -53,6 +53,17 @@
 
       in {
         packages = { inherit container htmlPages crane; };
+        devShells.default = pkgs.mkShell {
+          inputsFrom = [ haskellPackages.chris-martin-org.env ];
+          packages = [
+            pkgs.haskell.compiler.ghc810
+            pkgs.sassc
+            pkgs.cabal-install
+            pkgs.zlib
+            pkgs.rsync
+            pkgs.openssh
+          ];
+        };
         devShells.deploy = pkgs.mkShell { packages = [ deploy ]; };
       }
     );
