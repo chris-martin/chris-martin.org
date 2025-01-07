@@ -6,6 +6,4 @@ Build:
 
 This places the built site contents into the `out` directory.
 
-Then deploy:
-
-    bash ./deploy.bash
+Commit, then push to `master`.
