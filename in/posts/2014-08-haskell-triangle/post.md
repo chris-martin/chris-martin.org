@@ -9,11 +9,8 @@ abstract:      Sometimes I see a Java question, write myself a Haskell
                will never know about it.
 --------------------------------------------------------------------------------
 
-<blockquote><p>Sometimes I see a Java SO
-question, write myself a haskell solution, then sadly read over the thread of
-people who will never know about it.</p>— Chris Martin (@chris__martin)
-<a href="https://twitter.com/chris__martin/statuses/495434666623909889">August
-2, 2014</a></blockquote>
+Sometimes I see a Java SOvquestion, write myself a haskell solution,
+then sadly read over the thread of people who will never know about it.
 
 It’s getting increasingly painful to read Stack Overflow newb questions,
 because imperative languages are so unnecessarily difficult.
@@ -153,13 +150,9 @@ and the Haskell uses more human words.
 Do you have a moment to talk about our Lord and Savior Jesus Christ?
 --------------------------------------------------------------------------
 
-<blockquote><p>Sometimes I see a Java SO question, write myself a haskell solution, then sadly read over the thread of people who will never know about it.</p>&mdash; Chris Martin (@chris__martin) <a href="https://twitter.com/chris__martin/status/495434666623909889">August 2, 2014</a></blockquote>
-
-<blockquote><p>you could post it, just for
-curiosity&#39;s sake, but it&#39;d only cause negative emotions</p>—
-Chris Martin (@chris__martin) <a
-href="https://twitter.com/chris__martin/statuses/495434954399285248">August 2,
-2014</a></blockquote>
+Sometimes I see a Java SO question, write myself a haskell solution, then sadly
+read over the thread of people who will never know about it. You could post it,
+just for curiosity&#39;s sake, but it&#39;d only cause negative emotions.
 
 I wish we’d do this more often. I wish we’d look at these Java questions and
 say: “Look, first you need to *understand* the problem on a deeper level - So
@@ -172,15 +165,7 @@ Teaching, trolling, or proselytizing?
 Addendum
 --------------------------------------------------------------------------
 
-Here’s a slightly revised program thanks to some feedback.
-
-<blockquote><p>
-<a href="https://twitter.com/chris__martin">@chris__martin</a> Nice
-understandable solution. My similar would use
-&quot;zeroOnes = &#39;0&#39;:&#39;1&#39;:zeroOnes&quot; and &quot;take i $
-drop (i `mod` 2) $ zeroOnes&quot;.</p>— Franklin Chen (@franklinchen)
-<a href="https://twitter.com/franklinchen/statuses/496275930667843584">August
-4, 2014</a></blockquote>
+Here’s a slightly revised program thanks to some feedback from Franklin Chen.
 
 ```haskell
 import Data.List (intercalate, intersperse)

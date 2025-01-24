@@ -22,8 +22,7 @@ the passphrase before proceeding.</p><div style="text-align: center;">
 <a href="https://nixos.org/releases/nixos/15.09/nixos-15.09.336.83cc494/">15.09.336.83cc494</a>
 x86_64 minimal install ISO.</p><p><i>(I first tried the latest stable release, 14.12, and had an error
 installing Grub. I switched to this particular build of NixOS 15.09
-on
-<a href="https://twitter.com/iElectric/status/643359273012043776">Domen Kožar’s recommendation</a>.)</i></p><p>Load it onto a flash drive using unetbootin.</p><p><i>(I don’t know if there’s a better way to do this. Creating USB install
+on Domen Kožar’s recommendation.)</i></p><p>Load it onto a flash drive using unetbootin.</p><p><i>(I don’t know if there’s a better way to do this. Creating USB install
 media is still a huge mystery to me; I don’t get why it’s so complicated
 or why there’s seemingly no authoritative method.)</i></p><p>The volume label must be <code>NIXOS_ISO</code>:</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode"><span class="fu">sudo</span> mlabel -i <span class="op">&lt;</span>device<span class="op">&gt;</span> -s ::<span class="st">&quot;NIXOS_ISO  &quot;</span></code></pre></div><div class="container"><p>Note the spaces that pad the label name to
 <a href="http://askubuntu.com/a/103695/333663">exactly 11 characters</a>.</p><p>Boot the NixOS live “CD.” It contains the utilities that you’ll need to
@@ -100,15 +99,4 @@ again—and I am delightfully surprised by how it has improved.)</i></p><h3>Enab
 WPA keys so you don’t have to keep manually messing with <code>wpa_supplicant</code>.</p><p>Replace</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode">networking.wireless.enable = true;</code></pre></div><div class="container"><p>with</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode">networking.networkmanager.enable = true;</code></pre></div><div class="container"><p>Also add <code>kde4.networkmanagement</code> to the package list to get a GUI for it.</p><h2>Reference documentation</h2><p>If you add this config:</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode">services.nixosManual.showManual = true;</code></pre></div><div class="container"><p>Then ctrl+alt+F8 gives you the manual in a terminal, which may be nice
 to keep around in case of emergency.</p><p><code>nixos-help</code> opens the manual in a browser window.</p><p><code>nixos-option</code> is a good reference for the configuration options.</p><p>To search for packages, use <code>nix-env -qaP | grep ...</code>.
 The left column shows attribute paths (which is what you need for
-<code>systemPackages</code> in the config), and the right column shows package names.</p><br/>
-<br/><blockquote>
-  <p lang="en" dir="ltr">
-    Blog post: Installing
-    <a href="https://twitter.com/hashtag/NixOS?src=hash">#NixOS</a>
-    with encrypted root
-    <a href="http://t.co/YSh1klCdvM">http://t.co/YSh1klCdvM</a>
-  </p>— Chris Martin (@chris__martin)
-  <a href="https://twitter.com/chris__martin/status/648070378795872257">
-    September 27, 2015
-  </a>
-</blockquote></div></div></div></main><div class="post-footer container"><p>I write about Haskell and related topics; you can find my works online on <a href="http://typeclasses.com">Type Classes</a> and in print from <a href="http://joyofhaskell.com"><span style="text-decoration: italic;">The Joy of Haskell</span></a>.</p></div></body></html>
+<code>systemPackages</code> in the config), and the right column shows package names.</p></div></div></div></main><div class="post-footer container"><p>I write about Haskell and related topics; you can find my works online on <a href="http://typeclasses.com">Type Classes</a> and in print from <a href="http://joyofhaskell.com"><span style="text-decoration: italic;">The Joy of Haskell</span></a>.</p></div></body></html>

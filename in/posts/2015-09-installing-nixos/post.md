@@ -45,7 +45,7 @@ Here’s what it’s going to look like once NixOS is installed.
 ### The boot loader
 
 Here’s what my boot loader looks like after I’ve been using this system
-for a couple weeks and have rebuilt the configuration 114 times. 
+for a couple weeks and have rebuilt the configuration 114 times.
 
 <div style="text-align: center;">
   <img src="${boot-loader.jpg}" style="max-width: 100%;"/>
@@ -60,7 +60,7 @@ the passphrase before proceeding.
   <img src="${passphrase-prompt.jpg}" style="max-width: 100%;"/>
 </div>
 
-### The default login prompt 
+### The default login prompt
 
 <div style="text-align: center;">
   <img src="${login-prompt.jpg}" style="max-width: 100%;"/>
@@ -75,8 +75,7 @@ x86_64 minimal install ISO.
 
 *(I first tried the latest stable release, 14.12, and had an error
 installing Grub. I switched to this particular build of NixOS 15.09
-on
-[Domen Kožar’s recommendation](https://twitter.com/iElectric/status/643359273012043776).)*
+on Domen Kožar’s recommendation.)*
 
 Load it onto a flash drive using unetbootin.
 
@@ -160,7 +159,7 @@ I have no idea what `enc-pv` means here, I’m just following instructions.
 
 ### Create LVM group and volumes
 
-This allocates 10G for swap, and the rest for the root volume. 
+This allocates 10G for swap, and the rest for the root volume.
 
 ```bash
 pvcreate /dev/mapper/enc-pv
@@ -303,7 +302,7 @@ nix-channel --add http://nixos.org/channels/nixos-15.09
 nix-channel --update
 ```
 
-### Editing the config file 
+### Editing the config file
 
 You’ll be editing `/etc/nixos/configuration.nix` a lot.
 
@@ -388,18 +387,3 @@ to keep around in case of emergency.
 To search for packages, use `nix-env -qaP | grep ...`.
 The left column shows attribute paths (which is what you need for
 `systemPackages` in the config), and the right column shows package names.
-
-<br/>
-<br/>
-
-<blockquote>
-  <p lang="en" dir="ltr">
-    Blog post: Installing
-    <a href="https://twitter.com/hashtag/NixOS?src=hash">#NixOS</a>
-    with encrypted root
-    <a href="http://t.co/YSh1klCdvM">http://t.co/YSh1klCdvM</a>
-  </p>— Chris Martin (@chris__martin)
-  <a href="https://twitter.com/chris__martin/status/648070378795872257">
-    September 27, 2015
-  </a>
-</blockquote>

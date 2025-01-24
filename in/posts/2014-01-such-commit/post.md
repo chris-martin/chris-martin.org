@@ -19,8 +19,5 @@ abstract: ```
     $ wow<br/>
     $ such commit<br/>
     $ very push
-  </p>— Chris Martin (@chris__martin)
-  <a href="https://twitter.com/chris__martin/status/420992421673988096">
-    January 8, 2014
-  </a>
+  </p>
 </blockquote>

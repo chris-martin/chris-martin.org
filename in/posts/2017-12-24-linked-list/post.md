@@ -9,7 +9,7 @@ A [quote]:
 
 > Functional programming uses lists as the primitive data type but it's a really annoying one to use in practice. You don't have (fast) random access nor size, performance isn't awesome as you've got a lot of pointer dereferences and bad cache coherence, you cannot easily go backwards... Growable arrays have much better properties.
 
-Apologies to the author, who has prompted too much uproar and now just wants to be left alone. I wanted to try to write a helpful [response][tweet], though, because this is a misconception that I used to have. I believe it's quite common.
+Apologies to the author, who has prompted too much uproar and now just wants to be left alone. I wanted to try to write a helpful response, though, because this is a misconception that I used to have. I believe it's quite common.
 
 ---
 
@@ -26,4 +26,3 @@ If you come from the world of strict evaluation, then linked lists in the presen
   [quote]: https://gist.github.com/vjeux/cc2c4f83a6b60d69b79057b6ef651b56
   [containers]: https://hackage.haskell.org/package/containers
   [vector]: https://hackage.haskell.org/package/vector
-  [tweet]: https://twitter.com/chris__martin/status/944641666404806657
