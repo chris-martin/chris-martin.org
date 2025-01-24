@@ -9,7 +9,7 @@ abstract:      Sometimes I see a Java question, write myself a Haskell
                will never know about it.
 --------------------------------------------------------------------------------
 
-Sometimes I see a Java SOvquestion, write myself a haskell solution,
+Sometimes I see a Java Stack Overflow question, write myself a Haskell solution,
 then sadly read over the thread of people who will never know about it.
 
 It’s getting increasingly painful to read Stack Overflow newb questions,
@@ -150,7 +150,8 @@ and the Haskell uses more human words.
 Do you have a moment to talk about our Lord and Savior Jesus Christ?
 --------------------------------------------------------------------------
 
-Sometimes I see a Java SO question, write myself a haskell solution, then sadly
+Sometimes I see a Java Stack Overflow question, write myself a
+Haskell solution, then sadly
 read over the thread of people who will never know about it. You could post it,
 just for curiosity&#39;s sake, but it&#39;d only cause negative emotions.
 

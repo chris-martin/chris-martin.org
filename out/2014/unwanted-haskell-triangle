@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Unwanted Haskell triangle</title><link rel="icon" href=""><link href="https://fonts.googleapis.com/css?family=Inconsolata|Merriweather" rel="stylesheet"><link rel="stylesheet" type="text/css" href="../hash/85a636ccc52703eb9b8e8a4508a0cc49.css"><meta name="twitter:site:id" content="18271443"><meta name="twitter:title" content="Unwanted Haskell triangle"></head><body><header class="global-page-header"><div class="container"><a href="..">Chris Martin</a></div></header><main><div><div class="post-head container"><h1 class="post-title">Unwanted Haskell triangle</h1><div class="post-date">2014 August 3</div></div><div class="post-body"><div class="container"><p>Sometimes I see a Java SOvquestion, write myself a haskell solution,
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Unwanted Haskell triangle</title><link rel="icon" href=""><link href="https://fonts.googleapis.com/css?family=Inconsolata|Merriweather" rel="stylesheet"><link rel="stylesheet" type="text/css" href="../hash/85a636ccc52703eb9b8e8a4508a0cc49.css"><meta name="twitter:site:id" content="18271443"><meta name="twitter:title" content="Unwanted Haskell triangle"></head><body><header class="global-page-header"><div class="container"><a href="..">Chris Martin</a></div></header><main><div><div class="post-head container"><h1 class="post-title">Unwanted Haskell triangle</h1><div class="post-date">2014 August 3</div></div><div class="post-body"><div class="container"><p>Sometimes I see a Java Stack Overflow question, write myself a Haskell solution,
 then sadly read over the thread of people who will never know about it.</p><p>It’s getting increasingly painful to read Stack Overflow newb questions,
 because imperative languages are so unnecessarily difficult.</p><h2>How do I do ____ in Java?</h2><p><a href="https://stackoverflow.com/questions/25091218/print-triangle-pattern-using-java">This question on Stack Overflow</a>
 is about producing this string (using Java):</p></div><div class="sourceCode"><pre class="sourceCode"><code class="sourceCode">1
@@ -57,7 +57,8 @@ main <span class="fu">=</span> putStrLn <span class="fu">$</span> triangle <span
 than the Java implementations. I attribute a lot of that to our ability to make
 concepts like <code>alternation</code>, <code>line</code>, and <code>triangle</code> explicit and therefore to
 give them names. Contrary to stereotype, the Java is terse and symbol-heavy,
-and the Haskell uses more human words.</p><h2>Do you have a moment to talk about our Lord and Savior Jesus Christ?</h2><p>Sometimes I see a Java SO question, write myself a haskell solution, then sadly
+and the Haskell uses more human words.</p><h2>Do you have a moment to talk about our Lord and Savior Jesus Christ?</h2><p>Sometimes I see a Java Stack Overflow question, write myself a
+Haskell solution, then sadly
 read over the thread of people who will never know about it. You could post it,
 just for curiosity&#39;s sake, but it&#39;d only cause negative emotions.</p><p>I wish we’d do this more often. I wish we’d look at these Java questions and
 say: “Look, first you need to <i>understand</i> the problem on a deeper level - So
