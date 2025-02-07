@@ -17,7 +17,7 @@ For years I’ve heard Julie use the word “dickbong” without thinking much o
 
 Skipping an unknown beginning that would likely enhance this fourth-hand anecdote, I am forced to open cold on an American man relaxing on a beach in Australia, where for reasons lost to time he is temporarily without possessions and clad only in underwear briefs.
 
-He is approached by a vendor of the sort I have seen only in cartoons using the interior of his trenchcoat to conceal and to display illicit wares. Clearly seeing our protagonist with no means of purchase, the peddler nevertheless opens a side of the coat, disclosing an array of novelty drug paraphernalia. And with a jovial cheek I imagine uniquely Australian he asks:
+He is approached by a vendor of the sort I have seen only in cartoons using the interior of his trenchcoat to conceal and to display illicit wares. Clearly seeing our protagonist with no means of purchase, the peddler nevertheless opens a side of the coat, disclosing an array of novelty drug paraphernalia. And with a jovial cheek I imagine uniquely Australian he proposes:
 
 “Swap your jocks for a dickbong, mate?”
 
