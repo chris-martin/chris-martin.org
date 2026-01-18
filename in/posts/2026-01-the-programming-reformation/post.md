@@ -1,7 +1,4 @@
 ---
-
-This piece emerged out of conversations with my wife, [Julie Moronuki](https://argumatronic.com/), a great writer and reader of books who once taught herself Haskell and is currently teaching herself how to make whole grain sourdough.
----
 title: The Programming Reformation
 date: 2026 Jan 18
 slug: the-programming-reformation
@@ -33,3 +30,7 @@ Agency requires broad understanding of the whole human project that spans a grea
 In a hyperstimulating media environment, intellect may not exist at all. Maybe programming isn’t especially difficult to learn. Maybe the reason it appears so is that in this era of computers and the cat videos they provide, complex thought is inhibited so badly that now *all* things are difficult to learn.
 
 Luther had faith in the people to read the text, and, with help, understand it. Maybe that’s what we need to rediscover ourselves as insubordinate to computers: faith and some help.
+
+---
+
+This piece emerged out of conversations with my wife, [Julie Moronuki](https://argumatronic.com/), a great writer and reader of books who once taught herself Haskell and is currently teaching herself how to make whole grain sourdough.
