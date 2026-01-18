@@ -1,4 +1,7 @@
 ---
+
+This piece emerged out of conversations with my wife, [Julie Moronuki](https://argumatronic.com/), a great writer and reader of books who once taught herself Haskell and is currently teaching herself how to make whole grain sourdough.
+---
 title: The Programming Reformation
 date: 2026 Jan 18
 slug: the-programming-reformation
